@@ -1,0 +1,23 @@
+@import "./variables";
+
+.f-label {
+  color: black;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+  &.f-label-default {
+    background: #eee;
+  }
+  &.f-label-success {
+    background: #7fda7f;
+  }
+  &.f-label-warning {
+    background: #daba7f;
+  }
+  &.f-label-danger {
+    background: #da857f;
+  }
+  &.f-label-info {
+    background: #7fb9da;
+  }
+}
