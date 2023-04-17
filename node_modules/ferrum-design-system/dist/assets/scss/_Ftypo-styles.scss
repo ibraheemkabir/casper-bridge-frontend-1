@@ -1,0 +1,47 @@
+@import "./variables";
+
+// TYPO - START
+.text-primary {
+  color: $themePrimaryColor !important;
+}
+.text-dark {
+  color: black !important;
+}
+.text-light {
+  color: white !important;
+}
+
+// TYPO - END
+.f-item {
+  .f-typo {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+.f-typo {
+  &.f-typo-align-left {
+    text-align: left;
+    // display: flex;
+    // justify-content: flex-start;
+    > * {
+      margin-right: 1rem;
+    }
+  }
+  &.f-typo-align-center {
+    text-align: center;
+    // display: flex;
+    // justify-content: center;
+    > * {
+      margin-right: 0.5rem;
+      margin-left: 0.5rem;
+    }
+  }
+  &.f-typo-align-right {
+    text-align: right;
+    // display: flex;
+    // justify-content: flex-end;
+    > * {
+      margin-left: 1rem;
+    }
+  }
+}

@@ -1,0 +1,56 @@
+@import "./variables";
+
+.f-dropdown {
+  visibility: hidden;
+  //   position: relative;
+  &:before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(black, 0.5);
+  }
+  &.f-dialog-small {
+    .f-dialog-content {
+      max-width: 375px;
+    }
+  }
+  &.f-dialog-medium {
+    .f-dialog-content {
+      max-width: 500px;
+    }
+  }
+  &.f-dialog-large {
+    .f-dialog-content {
+      max-width: 700px;
+    }
+  }
+  .f-dialog-content {
+    width: 100%;
+    background: black;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: $transition;
+    box-shadow: 0 2px 5px rgba(black, 0.5);
+    .f-dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      h3 {
+        font-size: 1.5rem;
+      }
+    }
+  }
+  &.show {
+    visibility: visible;
+    .f-dialog-content {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}
