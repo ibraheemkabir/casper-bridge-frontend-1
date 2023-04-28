@@ -25,6 +25,7 @@ import { useHistory } from "react-router";
 import ConfirmationDialog from "../dialogs/ConfirmationDialog";
 import TxProcessingDialog from "../dialogs/TxProcessingDialog";
 import Web3 from "web3";
+import { networksToChainIdMap } from "../utils/network";
 
 
 const RPC_API = "https://rpc.testnet.casperlabs.io/rpc";
@@ -34,7 +35,7 @@ const casperClient = new CasperClient(RPC_API);
 
 export const Withdrawals = () => {
     const { connect: { config, selectedAccount, isWalletConnected, withdrawalItems } } = useSelector((state: any) => state.casper);
-    const { walletAddress, isConnected, networkClient } = useSelector((state: any) => state.casper.walletConnector);
+    const { walletAddress, isConnected, networkClient, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
     const [loading, setLoading] = useState(false);
     const [processMsg, setProcessMsg] = useState('');
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -44,6 +45,9 @@ export const Withdrawals = () => {
 
     async function withdrawEvm(id: string, item: any):Promise<any>{
         console.log(item, 'itemitemitemitem')
+        //@ts-ignore
+        const networkData = networksToChainIdMap[currentWalletNetwork]
+        console.log(networkData, currentWalletNetwork);
         const Api = new crucibleApi()
         await Api.signInToServer(walletAddress)
             const res = await Api.gatewayApi({
@@ -51,12 +55,12 @@ export const Withdrawals = () => {
                "data": {
                 "id": id,
                 "txType": "swap",
-                "sendNetwork": "BSC_TESTNET",
+                "sendNetwork": `${networkData?.sendCurrencyFormatted || networkData?.sendNetwork || 'BSC_TESTNET'}`,
                 "used": "",
                 "user": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
                 "sendAddress": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
                 "receiveAddress": "017fbbccf39a639a1a5f469e3fb210d9f355b532bd786f945409f0fc9a8c6313b1",
-                "sendCurrency": "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
+                "sendCurrency": networkData?.sendCurrency || `${networkData.sendNetwork}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
                 "sendAmount":  Web3.utils.toWei(item.sendAmount, 'ether'),
                 "receiveCurrency": "CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473"
               },
@@ -83,7 +87,7 @@ export const Withdrawals = () => {
         const userWithdrawals = await Api.gatewayApi({
             command: 'getUserNonEvmWithdrawItems', data: {
             userAddress: `${selectedAccount?.address}`,
-            network: 'BSC_TESTNET',
+            network: "MUMBAI_TESTNET",
             receiveAddress: walletAddress,
         }, params: [] });
         if (userWithdrawals.data){
@@ -215,7 +219,7 @@ export const Withdrawals = () => {
                     <Datatable tableBody={body || []} tableHeaders={tableHeads} rowsPerPage={10} />
                 </FTable>
             </FGrid>
-            <ConfirmationDialog onHide={() =>setShowConfirmation(false)} transaction={processMsg} message={'Transaction sent to network and is processing.'} show={showConfirmation} isSwap={true} />
+            <ConfirmationDialog onHide={() =>setShowConfirmation(false)} transaction={processMsg} message={'Transaction sent to network and is processing.'} show={showConfirmation} isSwap={false} />
             <TxProcessingDialog onHide={() =>setLoading(false)} message={ processMsg || "Transaction Processing...."} show={loading}/>
         </>
     )

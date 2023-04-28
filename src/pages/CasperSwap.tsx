@@ -20,6 +20,7 @@ import { MetaMaskConnector } from "../components/connector";
 import { ConnectWalletDialog } from "../utils/connect-wallet/ConnectWalletDialog";
 import { crucibleApi } from "../client";
 import { Web3Helper } from "../utils/web3Helper";
+import { networksToChainIdMap } from "../utils/network";
 
 const RPC_API = "https://rpc.testnet.casperlabs.io/rpc";
 
@@ -43,15 +44,19 @@ export const CasperSwap = () => {
     useSelector((state: any) => state.casper.walletConnector);
 
   
+  console.log(currentWalletNetwork);
 
   async function swapEvm():Promise<any>{
+    //@ts-ignore
+    const networkData = networksToChainIdMap[currentWalletNetwork]
+    console.log(networkData, currentWalletNetwork);
     const Api = new crucibleApi()
     await Api.signInToServer(walletAddress)
 		const res = await Api.gatewayApi({
             command: 'swapGetTransaction', data: {
               amount: amount,
               targetCurrency: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
-              currency: 'BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179'
+              currency: networkData?.currency || 'BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179'
           },
 			params: [] });
     
@@ -67,10 +72,10 @@ export const CasperSwap = () => {
         const res = await Api.gatewayApi({
           command: 'logEvmAndNonEvmTransaction', data: {
             "id": tx.split("|")[0],
-            "sendNetwork": "BSC_TESTNET",
+            "sendNetwork": networkData?.sendNetwork || "BSC_TESTNET",
             "sendAddress": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
             "receiveAddress": `${selectedAccount?.address}`,
-            "sendCurrency": "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
+            "sendCurrency": networkData?.currency || "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
             "sendAmount": amount,
             "receiveCurrency": `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
         },
@@ -124,6 +129,8 @@ export const CasperSwap = () => {
   // console.log(stakingCap, stakeSoFar, youStakedBalance);
 
   const performSwap = async () => {
+    //@ts-ignore
+    const networkData = networksToChainIdMap[currentWalletNetwork]
     if (
       isWalletConnected &&
       selectedAccount
@@ -143,8 +150,8 @@ export const CasperSwap = () => {
           const args = RuntimeArgs.fromMap({
             "amount": CLValueBuilder.u256(amount),
             "token_address": CLValueBuilder.string('contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'),
-            "target_network": CLValueBuilder.u256(targetNetwork),
-            "target_token": CLValueBuilder.string(targetToken),
+            "target_network": CLValueBuilder.u256(networkData?.chainId || currentWalletNetwork || targetNetwork),
+            "target_token": CLValueBuilder.string(networkData?.targetToken || targetToken),
           });
 
           const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
@@ -207,12 +214,15 @@ export const CasperSwap = () => {
     }
   };
 
+  //@ts-ignore
+  const networkData = networksToChainIdMap[currentWalletNetwork]
+
   return (
     <>
          <FCard className={"card-staking f-mb-2"}>
         <FGrid>
           <FTypo size={18} align={"center"} className={"f-mb--5 f-mt--7"}>
-            SWAP FROM BSC TO CASPER
+            SWAP FROM {networkData?.chain || 'BSC'} TO CASPER
           </FTypo>
           <FGridItem alignX={"center"} size={[8, 8, 12]} className="f-m-auto f-mb-1">
             <FItem align={"center"}>
@@ -272,13 +282,13 @@ export const CasperSwap = () => {
           </FGridItem>
          
         </FGrid>
-        <ConfirmationDialog amount={amount} onHide={() =>setShowConfirmation(false)} transaction={processMsg} message={'Transaction sent to network and is processing.'} show={showConfirmation} isSwap={true} />
+        <ConfirmationDialog amount={amount} onHide={() =>setShowConfirmation(false)} transaction={processMsg} message={'Transaction sent to network and is processing.'} show={showConfirmation} isSwap={true} network={networkData?.sendNetwork} />
         <TxProcessingDialog onHide={() =>setLoading(false)} message={ processMsg || "Transaction Processing...."} show={loading}/>
       </FCard>
       <FCard className={"card-staking f-mb-2"}>
         <FGrid alignX={"center"} className="f-mb-1">
           <FTypo size={18} align={"center"} className={"f-mb-14 f-mt--7"}>
-            SWAP FROM CASPER TO BSC
+            SWAP FROM CASPER TO {networkData?.chain || 'BSC'}
           </FTypo>
           <FGridItem alignX={"center"} size={[8, 8, 12]} className="f-m-auto f-mb-1">
             <FItem align={"center"}>    
@@ -304,7 +314,7 @@ export const CasperSwap = () => {
                 className={"f-mt-2"}
                 label={"Target Network"}
                 disabled
-                value={targetNetwork}
+                value={networkData?.chainId || currentWalletNetwork || targetNetwork}
                 onChange={(e: any) => {}}
               />
               <FInputText

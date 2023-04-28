@@ -19,6 +19,7 @@ const ConfirmationDialog = ({
     message,
     transaction,
     amount,
+    network = "BSC_TESTNET",
     isSwap = false,
   }: any) => {
     const [processing, setProcessing] = useState(false)
@@ -26,7 +27,7 @@ const ConfirmationDialog = ({
     const [isDone, setIsDone] = useState(false)
     const [intervalId, setIntervalId] = useState(null as any)
     const { connect: { config, selectedAccount, isWalletConnected, signedAddresses, } } = useSelector((state: any) => state.casper);
-    const { walletAddress } = useSelector((state: any) => state.casper.walletConnector);
+    const { walletAddress, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
 
     const checkTransaction = async () => {
         setProcessing(true)
@@ -54,13 +55,13 @@ const ConfirmationDialog = ({
               await Api.signInToServer(walletAddress)
               const logTransaction = await Api.gatewayApi({
                 command: 'logEvmAndNonEvmTransaction', data: {
-                  receiveNetwork: '56',
+                  receiveNetwork: currentWalletNetwork || '56',
                   sendAmount: amount,
                   sendAddress: `${selectedAccount?.address}`,
                   sendNetwork: '109090',
                   sendTimestamp: Date.now(),
                   sendCurrencyS: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
-                  receiveCurrency: 'BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179',
+                  receiveCurrency: `${network}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
                   creator: `cspr:${selectedAccount?.address}`,
                   id: transaction
               }, params: [] });

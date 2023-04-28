@@ -147,7 +147,7 @@ const Header = () => {
       <FHeader showLogo={true} headerLogo={logo} className="bg-none">
         <FItem display={"flex"} align="right" alignY={"center"}>
           <FItem display={"flex"} align="right" alignY={"center"}>
-            <span onClick={() => navigate.push(`/withdraw`)}>My Withdrawals</span>
+            <span style={{"cursor": "pointer"}} onClick={() => navigate.push(`/withdraw`)}>My Withdrawals</span>
           </FItem>
           {connection?.isWalletConnected ? (
             <>
