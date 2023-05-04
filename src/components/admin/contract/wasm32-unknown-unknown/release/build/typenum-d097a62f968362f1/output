@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/kabiribraheem/Documents/casper_staking/staking_contract/staking_contract/target/wasm32-unknown-unknown/release/build/typenum-d097a62f968362f1/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/Users/kabiribraheem/Documents/casper_staking/staking_contract/staking_contract/target/wasm32-unknown-unknown/release/build/typenum-d097a62f968362f1/out/op.rs
