@@ -7,7 +7,7 @@ cd ferrum-gateway
 
 **Installation Requirements**
 
-- Node version: ^v15.5.0
+- Node version: v15.5.0
 - Npm version: ^8.19.2
 
 This repository contains the frontend implementation for the shell application for completing EVM to NON EVM token swaps between casper and bsc networks mainly. 
@@ -51,12 +51,11 @@ const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
 );
 ```
 
-
 # Instructions to Run
 
 Install required browser/chrome extensions (compatible with chrome , consider equivaluents on other browsers) :
 
-**Capser browser client extension**: `https://chrome.google.com/webstore/detail/casper-signer/djhndpllfiibmcdbnmaaahkhchcoijce?hl=en-GB`
+**Capser browser client extension**: `https://chrome.google.com/webstore/detail/casper-wallet/abkahkcbhngaebpcgfmhkoioedceoigp?hl=en-GB`
 
 **Metamask browser extension**: `https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en-GB`
 
@@ -68,6 +67,16 @@ Install project dependencies by running `npm install`
 
 Start project by running `npm start`
 
+As a result of Cors errors from the casper RPC url, it is important to download a cors unblocking extension to ease connection e.g https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino?hl=en-GB or its equivalent on respective browsers
+
+**To Run Backend locally**
+
+- Open src/client.ts file on an editor
+
+- replace backend url with local backend url e.g `http://localhost:8080`
+
+- restart frontend app based on above instructions
+
 **To Run Via Docker**
 
 docker build .
@@ -75,6 +84,8 @@ docker build .
 docker-compose up --build casper-bridge-frontend
 
 <br />
+
+Bridge shell app can access from the url - https://casper-swap.netlify.app/ subject to cors issues with fix stated above.
 
 # Steps to conduct swaps
 
@@ -118,6 +129,7 @@ To execute a swap, users need to
 Connect to source and destination wallet
 
 Select transaction to withdraw and accept transaction prompt on corresponding wallet.
+
 <br />
 
 # Contributing

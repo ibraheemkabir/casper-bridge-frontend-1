@@ -43,13 +43,9 @@ export const CasperSwap = () => {
   const { isConnected, isConnecting, currentWalletNetwork, walletAddress, networkClient } =
     useSelector((state: any) => state.casper.walletConnector);
 
-  
-  console.log(currentWalletNetwork);
-
   async function swapEvm():Promise<any>{
     //@ts-ignore
     const networkData = networksToChainIdMap[currentWalletNetwork]
-    console.log(networkData, currentWalletNetwork);
     const Api = new crucibleApi()
     await Api.signInToServer(walletAddress)
 		const res = await Api.gatewayApi({
@@ -61,7 +57,6 @@ export const CasperSwap = () => {
 			params: [] });
     
     if (res.data.requests) {
-      console.log(res.data.requests, 'res.data.requests')
       const helper = new Web3Helper(networkClient)
       const tx = await helper.sendTransactionAsync(
         dispatch,
@@ -80,53 +75,48 @@ export const CasperSwap = () => {
             "receiveCurrency": `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
         },
         params: [] });
-        console.log(res);
         setShowConfirmation(true)
       }
-      console.log(tx);
     }
-    console.log(res)
 	}
 
 
   async function AccountInformation() {
-    const isConnected = await window.casperlabsHelper.isConnected();
-    console.log(isConnected, connection, 'isConnectedisConnected')
+    //@ts-ignore
+    const casperWalletProvider = await window.CasperWalletProvider;    
+    const provider = casperWalletProvider();
+    const isConnected = await provider.isConnected();
     if (isConnected) {
-        const publicKey = await window.casperlabsHelper.getActivePublicKey();
-        console.log(publicKey);
+        const publicKey = await provider.getActivePublicKey();
         //textAddress.textContent += publicKey;
 
         const latestBlock = await casperService.getLatestBlockInfo();
-        console.log(latestBlock);
 
         const root = await casperService.getStateRootHash(latestBlock?.block?.hash);
-        console.log(latestBlock, root)
 
         await connectWalletDispatch([{
           "address": publicKey
         }])(dispatch)
         const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(root, CLPublicKey.fromHex(publicKey));
-        console.log(balanceUref)
         
         // @ts-ignore
         const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
-        console.log(balance.toString())
         //textBalance.textContent = `PublicKeyHex ${balance.toString()}`;
     }
   }
 
 
   const connectWallet = async () => {
-    await window.casperlabsHelper.requestConnection()
+    //@ts-ignore
+    const casperWalletProvider = await window.CasperWalletProvider;    
+    const provider = casperWalletProvider();
 
-    const isConnected = await window.casperlabsHelper.isConnected();
+    const isConnected = await provider.isConnected();
 
     if (isConnected) {
       await AccountInformation();
     }   
   };
-  // console.log(stakingCap, stakeSoFar, youStakedBalance);
 
   const performSwap = async () => {
     //@ts-ignore
@@ -135,9 +125,11 @@ export const CasperSwap = () => {
       isWalletConnected &&
       selectedAccount
     ) {
+      //@ts-ignore
+      const casperWalletProvider = await window.CasperWalletProvider;    
+      const provider = casperWalletProvider();
       setLoading(true)
       try {
-        // console.log(selectedAccount?.address, Number(amount));
         if (amount && Number(amount) > 0) {
           const publicKeyHex = selectedAccount?.address;
           const senderPublicKey = CLPublicKey.fromHex(publicKeyHex);
@@ -166,29 +158,16 @@ export const CasperSwap = () => {
 
           const deployJson: any = DeployUtil.deployToJson(deploy);
         
-          Signer.sign(deployJson, publicKeyHex).then(async (signedDeployJson) => {
-            const signedDeploy = DeployUtil.deployFromJson(signedDeployJson);
-            console.log(signedDeploy)
-            if (signedDeploy.ok) {
-              const res = await casperClient.putDeploy(signedDeploy.val);
+          provider.sign(JSON.stringify(deployJson), publicKeyHex).then(async (signedDeployJson: any) => {
+            const signedDeploy = DeployUtil.setSignature(
+              deploy,
+              signedDeployJson.signature,
+              CLPublicKey.fromHex(publicKeyHex)
+            );
+            // const signedDeploy = DeployUtil.deployFromJson(signedDeployJson);
+            if (signedDeploy) {
+              const res = await casperClient.putDeploy(signedDeploy);
               console.log(res, 'resres');
-              // if (res) {
-              //   const Api = new crucibleApi();
-              //   await Api.signInToServer(walletAddress);
-              //   const result = await Api.gatewayApi({
-              //     command: 'processFromEvmSwapTransaction', data: {
-              //       "id": `0x${res}`,
-              //       "txType": "swap",
-              //       "sendNetwork": "BSC_TESTNET",
-              //       "used": "",
-              //       "sendAddress": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
-              //       "receiveAddress": `${selectedAccount?.address}`,
-              //       "sendCurrency": "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
-              //       "sendAmount": amount,
-              //       "receiveCurrency": `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
-              //   }})
-              //   console.log(result);
-              // }
               setProcessMsg(res)
               setLoading(false)
               setShowConfirmation(true)
@@ -201,7 +180,6 @@ export const CasperSwap = () => {
           toast.error("Amount must be greater than 0");
         }
       } catch (e) {
-        console.log("ERROR : ", e);
         toast.error("An error occured please see console for details");
         navigate.push(`/${config._id}`);
       } finally {
@@ -209,7 +187,6 @@ export const CasperSwap = () => {
       }
 
     } else {
-      console.log("heelelll")
       navigate.push(`/${config._id}`);
     }
   };

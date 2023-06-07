@@ -19,6 +19,5 @@ export const catchWalletConnectError = () => (dispatch: any) => {
 };
 
 export const resetWalletConnector = () => (dispatch: any) => {
-  console.log('reset wallet connector')
   dispatch(actions.disconnectWallet({ payload: {} }));
 };

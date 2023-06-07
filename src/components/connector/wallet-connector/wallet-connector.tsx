@@ -23,7 +23,6 @@ export const WalletConnector = ({
     undefined
   );
   const state =  useSelector((state: RootState) => state);
-  console.log(state);
 
   const dispatch = useDispatch();
   const { active, activate, deactivate, library, account, chainId, error } =
@@ -177,31 +176,16 @@ export const WalletConnector = ({
         deactivate();
       }
     } else {
-      // console.log("wallet is already in connect state");
     }
   };
 
-  // // console.log(isConnecting, "isConnecting");
-  // // console.log(isConnected, "isConnected");
-  // // console.log(active, "active");
-  // // console.log(library, "library");
-  // // console.log(networkClient, "networkClient");
-  // // console.log(walletAddress, "walletAddress");
-  // // console.log(account, "account");
-  // // console.log(walletAddress === account);
-  // // console.log(chainId, "chainId");
-  // // console.log(currentWalletNetwork, "currentWalletNetwork");
-  // // console.log(currentWalletNetwork === chainId);
-  // // console.log(error);
 
   const connectMetaMask = () => {
     if (isConnected) {
-      // console.log("wallet is already connect disconnect wallet");
       dispatch(walletConnectorActions.resetWalletConnector());
       setNetworkClient(undefined);
       deactivate();
     } else {
-      // console.log("intialize web3 wallet connect for meta mask");
       activate(injected);
       setShowWalletDialog(false);
       setNetworkClient(undefined);
@@ -211,7 +195,6 @@ export const WalletConnector = ({
   useEffect(() => {
     if (error) {
       dispatch(walletConnectorActions.resetWalletConnector());
-      // console.log(error);
       toast.error(error?.message || "Error connecting wallet");
     }
     // eslint-disable-next-line
@@ -240,7 +223,6 @@ export const WalletConnector = ({
           disabled: isConnecting,
         }}
         onClick={() => {
-          console.log("helloooo-=====>><<<")
           openWalletSelectorDialog();
         }}
       />

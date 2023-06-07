@@ -8,7 +8,7 @@ import LoaderGif from "./../assets/images/loading2.gif";
 import { crucibleApi } from "../client";
 import { useSelector } from "react-redux";
 
-const RPC_API = "http://44.208.234.65:7777/rpc";
+const RPC_API = "https://rpc.testnet.casperlabs.io/rpc";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
@@ -32,21 +32,16 @@ const ConfirmationDialog = ({
     const checkTransaction = async () => {
         setProcessing(true)
         const res = await casperService.getDeployInfo(transaction)
-        console.log(res);
         if(res.execution_results.length) {
-            console.log(res)
            //@ts-ignore
            if(res.execution_results[0].result.Failure) {
             //@ts-ignore
-            console.log(res.execution_results[0].result.Failure.error_message, 'res[0].result.Failure')
             setProcessing(false)
             setIsDone(true)
             setIsSuccessful(false)
            }
            //@ts-ignore
            if(res.execution_results[0].result.Success) {
-            //@ts-ignore
-            console.log(res.execution_results[0].result.Success)
             setProcessing(false)
             setIsDone(true)
             setIsSuccessful(true)
@@ -65,14 +60,12 @@ const ConfirmationDialog = ({
                   creator: `cspr:${selectedAccount?.address}`,
                   id: transaction
               }, params: [] });
-              console.log(logTransaction);
             }
            
            }
         }
     }
     useEffect(() => {
-        console.log(transaction, isDone)
         if (transaction && !isDone) {
           let intervalId = setInterval(
             () =>  checkTransaction()
@@ -81,7 +74,6 @@ const ConfirmationDialog = ({
         }
 
         if (transaction && isDone) {
-          console.log(intervalId)
           clearInterval(intervalId)
         }
     }, [transaction, isDone])

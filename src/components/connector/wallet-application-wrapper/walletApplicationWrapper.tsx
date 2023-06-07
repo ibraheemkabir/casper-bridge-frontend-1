@@ -39,7 +39,6 @@ export const ApplicationWrapper = ({ children }: any) => {
   }, []);
 
   useEffect(() => {
-    // console.log("intiialalalal");
     if (
       isConnected &&
       isWeb3Initialized &&
@@ -88,7 +87,7 @@ export const ApplicationWrapper = ({ children }: any) => {
           //     balance = Web3.utils.fromWei(
           //       await networkClient!.eth.getBalance(walletAddress as string)
           //     );
-          //     // console.log(balance, "==================");
+          //     // (balance, "==================");
           //   } else {
           //     balance = "0";
           //   }
