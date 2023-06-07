@@ -69,6 +69,14 @@ Start project by running `npm start`
 
 As a result of Cors errors from the casper RPC url, it is important to download a cors unblocking extension to ease connection e.g https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino?hl=en-GB or its equivalent on respective browsers
 
+**To Run Backend locally**
+
+- Open src/client.ts file on an editor
+
+- replace backend url with local backend url e.g `http://localhost:8080`
+
+- restart frontend app based on above instructions
+
 **To Run Via Docker**
 
 docker build .
