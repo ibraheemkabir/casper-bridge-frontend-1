@@ -85,6 +85,8 @@ docker-compose up --build casper-bridge-frontend
 
 <br />
 
+Bridge shell app can access from the url - https://casper-swap.netlify.app/ subject to cors issues with fix stated above.
+
 # Steps to conduct swaps
 
 On starting application, the dashboard contains two cards, the first card is for swapping tokens from EVM to Non-EVM network and the second card allows for swapping from a non-evm to an evm destination. 
