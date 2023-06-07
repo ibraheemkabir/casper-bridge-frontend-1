@@ -18,7 +18,6 @@ import toast from "react-hot-toast";
 
 const WidthCardSubmit = () => {
   const { stakingId }: any = useParams();
-  console.log(stakingId);
   const history = useHistory();
   const dispatch = useDispatch();
   const [amount, setAmount] = useState();

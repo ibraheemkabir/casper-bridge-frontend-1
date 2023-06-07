@@ -53,24 +53,23 @@ export const CasperWithdrawal = () => {
   );
 
   async function AccountInformation() {
-    const isConnected = await window.casperlabsHelper.isConnected();
-    console.log(isConnected, connection, 'isConnectedisConnected')
+    //@ts-ignore
+    const casperWalletProvider = await window.CasperWalletProvider;    
+    const provider = casperWalletProvider();
+
+    const isConnected = await provider.isConnected();
     if (isConnected) {
-        const publicKey = await window.casperlabsHelper.getActivePublicKey();
-        console.log(publicKey);
+        const publicKey = await provider.getActivePublicKey();
         //textAddress.textContent += publicKey;
 
         const latestBlock = await casperService.getLatestBlockInfo();
-        console.log(latestBlock);
 
         const root = await casperService.getStateRootHash(latestBlock?.block?.hash);
-        console.log(latestBlock, root)
 
         await connectWalletDispatch([{
           "address": publicKey
         }])(dispatch)
         const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(root, CLPublicKey.fromHex(publicKey));
-        console.log(balanceUref)
         
         // @ts-ignore
         const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
@@ -81,27 +80,18 @@ export const CasperWithdrawal = () => {
 
 
   const connectWallet = async () => {
-    await window.casperlabsHelper.requestConnection()
+    //@ts-ignore
+    const casperWalletProvider = await window.CasperWalletProvider;    
+    const provider = casperWalletProvider();
 
-    const isConnected = await window.casperlabsHelper.isConnected();
+    await provider.requestConnection()
+
+    const isConnected = await provider.isConnected();
 
     if (isConnected) {
       await AccountInformation();
     }   
   };
-  // console.log(stakingCap, stakeSoFar, youStakedBalance);
-  {/* casper-client put-deploy \
-    --chain-name casper-test \
-    --node-address http://44.208.234.65:7777 \
-    --secret-key keys/secret_key.pem \
-    --session-hash hash-c312f4eda82c253e2817f41586ce0af99294d652507c2c7827bb6abbdc0f6e0f \
-    --session-entry-point withdraw_signed \
-    --payment-amount 5000000000 \
-    --session-arg "token_address:string='contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'" \
-    --session-arg "payee:string='0203d3a2770de0d4fe892c74e4e33f98580bb6136b1ab35f1244b0cf0758b3d1d3b3'" \
-    --session-arg "amount:u256='1'" \
-    --session-arg "signature:string='7369676e6174757265'" \
-    --session-arg "salt:string='0000000000000000000000000000000000000000000000000000000000000001'"  */}
 
   const performWithdraw = async () => {
     if (
@@ -110,7 +100,11 @@ export const CasperWithdrawal = () => {
     ) {
       setLoading(true)
       try {
-        // console.log(selectedAccount?.address, Number(amount));
+         //@ts-ignore
+      const casperWalletProvider = await window.CasperWalletProvider;    
+      const provider = casperWalletProvider();
+      setLoading(true)
+        // (selectedAccount?.address, Number(amount));
         if (amount && Number(amount) > 0) {
           const publicKeyHex = selectedAccount?.address;
           const senderPublicKey = CLPublicKey.fromHex(publicKeyHex);
@@ -140,11 +134,14 @@ export const CasperWithdrawal = () => {
 
           const deployJson: any = DeployUtil.deployToJson(deploy);
         
-          Signer.sign(deployJson, publicKeyHex).then(async (signedDeployJson) => {
-            const signedDeploy = DeployUtil.deployFromJson(signedDeployJson);
-            console.log(signedDeploy)
-            if (signedDeploy.ok) {
-              const res = await casperClient.putDeploy(signedDeploy.val);
+          provider.sign(JSON.stringify(deployJson), publicKeyHex).then(async (signedDeployJson: any) => {
+            const signedDeploy = DeployUtil.setSignature(
+              deploy,
+              signedDeployJson.signature,
+              CLPublicKey.fromHex(publicKeyHex)
+            );
+            if (signedDeploy) {
+              const res = await casperClient.putDeploy(signedDeploy);
               console.log(res, 'resres');
               if (res) {
                
@@ -169,7 +166,6 @@ export const CasperWithdrawal = () => {
       }
 
     } else {
-      console.log("heelelll")
       navigate.push(`/${config._id}`);
     }
   };

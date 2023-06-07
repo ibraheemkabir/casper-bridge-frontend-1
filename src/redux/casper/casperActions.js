@@ -16,7 +16,6 @@ export const resetWallet = (connectedAccounts) => async (dispatch) => {
 
 
 export const fetchWithdrawals = (withdrawalItems) => async (dispatch) => {
-  console.log(withdrawalItems)
   dispatch(actions.fetchWithdrawals({ withdrawalItems }));
 };
 
@@ -41,7 +40,6 @@ export const stakeWithdrawSucess = () => async (dispatch) => {
 };
 
 export const configLoaded = (config) => async (dispatch) => {
-  console.log(config.config, 'configgggg');
   let data = {}
   if (config.config.length) {
     config.config.forEach(
@@ -63,6 +61,5 @@ export const configLoaded = (config) => async (dispatch) => {
     stakingStarts: moment.unix(data.staking_starts).format("YYYY-MM-DD HH:mm:ss")
   };
 
-  console.log(data, config);
   dispatch(actions.configLoaded({ config: data, tokenInfo: config.tokenInfo }));
 };

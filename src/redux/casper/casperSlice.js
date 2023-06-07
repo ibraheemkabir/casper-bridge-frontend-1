@@ -29,7 +29,6 @@ const initialState = {
           : undefined;
       },
       fetchWithdrawals: (state, action) => {
-        console.log(action, 'actionaction')
         state.withdrawalItems = action.payload.withdrawalItems;
       },
       resetWallet: (state, action) => {
@@ -45,7 +44,6 @@ const initialState = {
         state.shouldStake = true;
       },
       signed: (state, action) => {
-        console.log(action)
         state.signedAddresses = action.payload
       },
       staked: (state, action) => {

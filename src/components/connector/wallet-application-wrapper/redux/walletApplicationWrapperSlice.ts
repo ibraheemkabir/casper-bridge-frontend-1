@@ -22,7 +22,6 @@ export const applicationWrapperSlice = createSlice({
       state.walletWrapperInitialized = true;
     },
     walletApplicationUser: (state, action) => {
-      // console.log(action.payload);
       state.userProfile = action.payload.userProfile;
       state.authToken = action.payload.authToken;
     },
