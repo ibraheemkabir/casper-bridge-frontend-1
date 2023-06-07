@@ -34,21 +34,22 @@ const Header = () => {
   const dispatch = useDispatch();
   const par = useParams();
   const { bridgePoolAddress }: any = useParams();
-  console.log(bridgePoolAddress, par, 'bridgePoolAddress');
   const navigate = useHistory();
   const connection = useSelector((state: any) => state.casper.connect)
   const [loading, setLoading] = useState(false);
 
-  console.log(connection)
 
   const [showAddressSelectorDlg, setShowAddressSelectorDlg] =  useState<boolean>(false);
 
   const selectedAccount: { address?: string } = {};
 
   const connectWallet = async () => {
-    await window.casperlabsHelper?.requestConnection()
+    //@ts-ignore
+    const casperWalletProvider = await window.CasperWalletProvider;    
+    const provider = casperWalletProvider();
+    await provider?.requestConnection()
 
-    const isConnected = await window.casperlabsHelper.isConnected();
+    const isConnected = await provider.isConnected();
 
     if (isConnected) {
       setLoading(true)
@@ -60,24 +61,27 @@ const Header = () => {
   };
 
   const disconnectWallet = async () => {
-    window.casperlabsHelper.disconnectFromSite();
+    //@ts-ignore
+    const casperWalletProvider = await window.CasperWalletProvider;    
+    const provider = casperWalletProvider();
+    provider.disconnectFromSite();
     await resetWallet()(dispatch)
   };
 
   async function AccountInformation() {
-    const isConnected = await window.casperlabsHelper.isConnected();
+    //@ts-ignore
+    const casperWalletProvider = await window.CasperWalletProvider;    
+    const provider = casperWalletProvider();
+    const isConnected = await provider.isConnected();
 
     if (isConnected) {
       try {
-        const publicKey = await window.casperlabsHelper.getActivePublicKey();
-        console.log(publicKey, bridgePoolAddress, 'stakingIdstakingId');
+        const publicKey = await provider.getActivePublicKey();
         //textAddress.textContent += publicKey;
 
         const latestBlock = await casperService.getLatestBlockInfo();
-        console.log(latestBlock);
 
         const root = await casperService.getStateRootHash(latestBlock?.block?.hash);
-        console.log(latestBlock, root)
 
         await connectWalletDispatch([ { "address": publicKey } ])(dispatch)
 
@@ -85,7 +89,6 @@ const Header = () => {
         
         // @ts-ignore
         const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
-        console.log(balance.toString())
 
         const info = await casperService.getDeployInfo(
           bridgePoolAddress
@@ -97,10 +100,8 @@ const Header = () => {
         )
 
         if (infoArguments) {
-          console.log(infoArguments, 'infoArguments', infoArguments[1].parsed)
           const token = infoArguments[1].parsed.split('-')[1]
 
-          console.log(token, latestBlock?.block?.header?.state_root_hash, 'latestBlock?.block?.header?.state_root_hash,latestBlock?.block?.header?.state_root_hash,');
 
           const tokenName = await casperService.getBlockState(
             //@ts-ignore
@@ -116,7 +117,6 @@ const Header = () => {
              ['symbol']
           )
   
-          console.log(tokenName.CLValue?.data, tokenSymbol.CLValue?.data, 'info2info2')
 
           if(info.deploy.session) {
             // @ts-ignore
@@ -131,13 +131,11 @@ const Header = () => {
             //@ts-ignore
             signed(info.deploy.approvals)(dispatch)
             //@ts-ignore
-            console.log(info.deploy, 'infoooo');
           }
         }
         
       } catch (error) {
         toast.error(`An error occured Error: ${error}`);
-        console.log(error, 'Error occured')
       }
     }
   }

@@ -44,10 +44,8 @@ export const Withdrawals = () => {
     const dispatch = useDispatch();
 
     async function withdrawEvm(id: string, item: any):Promise<any>{
-        console.log(item, 'itemitemitemitem')
         //@ts-ignore
         const networkData = networksToChainIdMap[currentWalletNetwork]
-        console.log(networkData, currentWalletNetwork);
         const Api = new crucibleApi()
         await Api.signInToServer(walletAddress)
             const res = await Api.gatewayApi({
@@ -68,7 +66,6 @@ export const Withdrawals = () => {
             });
         if (res.data) {
           const helper = new Web3Helper(networkClient)
-          console.log(res.data, 'res.datares.data');
           const tx = await helper.sendTransactionAsync(
             dispatch,
             [res.data]
@@ -76,9 +73,7 @@ export const Withdrawals = () => {
           if(tx) {
             setShowConfirmation(true)
           }
-          console.log(tx);
         }
-        console.log(res)
     }    
 
     const fetchEvmWithdrawalItems = async () => {
@@ -91,10 +86,8 @@ export const Withdrawals = () => {
             receiveAddress: walletAddress,
         }, params: [] });
         if (userWithdrawals.data){
-            console.log(userWithdrawals.data,'userWithdrawals.data')
             await fetchWithdrawals(userWithdrawals.data.withdrawableBalanceItems)(dispatch);
         }
-        console.log(userWithdrawals, 'userWithdrawals');
     }
 
     const performCasperWithdraw = async (amount: string) => {
@@ -102,9 +95,11 @@ export const Withdrawals = () => {
           isWalletConnected &&
           selectedAccount
         ) {
-          setLoading(true)
+          //@ts-ignore
+          const casperWalletProvider = await window.CasperWalletProvider;    
+          const provider = casperWalletProvider();
           try {
-            // console.log(selectedAccount?.address, Number(amount));
+            // (selectedAccount?.address, Number(amount));
             const publicKeyHex = selectedAccount?.address;
             const senderPublicKey = CLPublicKey.fromHex(publicKeyHex);
 
@@ -130,11 +125,15 @@ export const Withdrawals = () => {
 
             const deployJson: any = DeployUtil.deployToJson(deploy);
         
-            Signer.sign(deployJson, publicKeyHex).then(async (signedDeployJson) => {
-                const signedDeploy = DeployUtil.deployFromJson(signedDeployJson);
-                console.log(signedDeploy)
-                if (signedDeploy.ok) {
-                    const res = await casperClient.putDeploy(signedDeploy.val);
+            provider.sign(JSON.stringify(deployJson), publicKeyHex).then(async (signedDeployJson: any) => {
+                const signedDeploy = DeployUtil.setSignature(
+                  deploy,
+                  signedDeployJson.signature,
+                  CLPublicKey.fromHex(publicKeyHex)
+                );
+
+                if (signedDeploy) {
+                    const res = await casperClient.putDeploy(signedDeploy);
                     console.log(res, 'resres');
                     if (res) {
                     
@@ -148,7 +147,7 @@ export const Withdrawals = () => {
             //toast.success(`${amount} tokens are staked successfully`);
             
             } catch (e) {
-                console.log("ERROR : ", e);
+              console.log("ERROR : ", e);
                 toast.error("An error occured please see console for details");
                 navigate.push(`/${config._id}`);
             } finally {
@@ -156,13 +155,11 @@ export const Withdrawals = () => {
             }
 
         } else {
-            console.log("heelelll")
             navigate.push(`/${config._id}`);
         }
     };
         
 
-    console.log(withdrawalItems, 'userWithdrawals');
 
     useEffect(() => {
        fetchEvmWithdrawalItems()
@@ -175,7 +172,6 @@ export const Withdrawals = () => {
         { prop: "action", title: "Action" }
     ];
 
-    console.log(withdrawalItems)
 
     const body = (withdrawalItems || []).map((item: any) => { 
         return {
