@@ -40,6 +40,13 @@
     "web-vitals": "^2.1.2",
     "web3": "^4.0.2"
   },
+  "devDependencies": {
+    "glob-parent": "^6.0.1"
+  },
+  "resolutions": {
+    "nth-check": "2.0.1",
+    "glob-parent": "^6.0.1"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
