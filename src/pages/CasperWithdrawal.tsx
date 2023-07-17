@@ -128,7 +128,7 @@ export const CasperWithdrawal = () => {
             args
           );
 
-          const payment = DeployUtil.standardPayment(5000000000);
+          const payment = DeployUtil.standardPayment(10000000000);
 
           const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
 
