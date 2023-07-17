@@ -142,7 +142,7 @@ export const CasperSwap = () => {
           const args = RuntimeArgs.fromMap({
             "amount": CLValueBuilder.u256(amount),
             "token_address": CLValueBuilder.string('contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'),
-            "target_network": CLValueBuilder.u256(networkData?.chainId || currentWalletNetwork || targetNetwork),
+            "target_network": CLValueBuilder.u256(targetNetwork),
             "target_token": CLValueBuilder.string(networkData?.targetToken || targetToken),
           });
 

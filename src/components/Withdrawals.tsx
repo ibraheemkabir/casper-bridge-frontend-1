@@ -114,12 +114,12 @@ export const Withdrawals = () => {
             });
     
             const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-            decodeBase16('e84a7d24458b7c517b531373a66c8f4f34673dfed785e612a71051533d601aa3'),
+            decodeBase16('2eaf3bf2cbc8e46f56ce04904592aa530141170fbee3473baeba4edfe9e87513'),
             'withdraw',
             args
             );
 
-            const payment = DeployUtil.standardPayment(5000000000);
+            const payment = DeployUtil.standardPayment(10000000000);
 
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
 
