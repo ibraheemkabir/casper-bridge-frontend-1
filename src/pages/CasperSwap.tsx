@@ -22,7 +22,7 @@ import { crucibleApi } from "../client";
 import { Web3Helper } from "../utils/web3Helper";
 import { networksToChainIdMap } from "../utils/network";
 
-const RPC_API = "https://rpc.testnet.casperlabs.io/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
@@ -89,15 +89,14 @@ export const CasperSwap = () => {
     if (isConnected) {
         const publicKey = await provider.getActivePublicKey();
         //textAddress.textContent += publicKey;
-
         const latestBlock = await casperService.getLatestBlockInfo();
 
-        const root = await casperService.getStateRootHash(latestBlock?.block?.hash);
+        // const root = await casperService.getStateRootHash(latestBlock?.block?.header?.state_root_hash);
 
         await connectWalletDispatch([{
           "address": publicKey
         }])(dispatch)
-        const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(root, CLPublicKey.fromHex(publicKey));
+        const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(latestBlock?.block?.header?.state_root_hash || '', CLPublicKey.fromHex(publicKey));
         
         // @ts-ignore
         const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);

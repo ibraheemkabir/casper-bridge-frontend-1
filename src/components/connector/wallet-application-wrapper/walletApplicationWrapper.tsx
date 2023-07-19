@@ -7,7 +7,6 @@ import FerrumJson from "../../../utils/FerrumToken.json";
 import { RootState } from "../../../redux/rootReducer";
 import Web3 from "web3";
 import { Big } from "big.js";
-import { AbiItem } from "web3-utils";
 import { Web3ReactProvider } from "@web3-react/core";
 
 const getLibrary = (provider: any) => {
@@ -95,7 +94,7 @@ export const ApplicationWrapper = ({ children }: any) => {
           // const token = TokenInfo[c];
           // symbol = token.tokenSymbol;
           const tokenContract = new networkClient.eth.Contract(
-            FerrumJson.abi as AbiItem[],
+            FerrumJson.abi,
             tokenAddr
           );
           symbol = await tokenContract.methods.symbol().call();
