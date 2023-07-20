@@ -24,7 +24,7 @@ import AddressSelector from "../dialogs/AddressSelector";
 import { useHistory, useParams } from "react-router";
 import TxProcessingDialog from "../dialogs/TxProcessingDialog";
 
-const RPC_API = "https://rpc.testnet.casperlabs.io/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
 const STATUS_API = "https://4211-2a01-4b00-832a-3100-f467-7086-4cda-bb21.eu.ngrok.io/http://159.65.203.12:8888";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
@@ -81,11 +81,12 @@ const Header = () => {
 
         const latestBlock = await casperService.getLatestBlockInfo();
 
-        const root = await casperService.getStateRootHash(latestBlock?.block?.hash);
+        // const root = await casperService.getStateRootHash(latestBlock?.block?.header?.state_root_hash);
 
-        await connectWalletDispatch([ { "address": publicKey } ])(dispatch)
-
-        const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(root, CLPublicKey.fromHex(publicKey));
+        await connectWalletDispatch([{
+          "address": publicKey
+        }])(dispatch)
+        const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(latestBlock?.block?.header?.state_root_hash || '', CLPublicKey.fromHex(publicKey));
         
         // @ts-ignore
         const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
