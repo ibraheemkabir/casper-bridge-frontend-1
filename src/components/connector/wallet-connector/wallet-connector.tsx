@@ -120,7 +120,7 @@ export const WalletConnector = ({
       // );
       networkClient.eth
         .getBalance(account?.toString())
-        .then((balance: String) => {
+        .then((balance) => {
           // console.log(
           //   "newtork ping completed successfully update redux with wallet and network client information",
           //   balance,

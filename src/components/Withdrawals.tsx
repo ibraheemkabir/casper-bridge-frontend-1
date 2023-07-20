@@ -28,7 +28,7 @@ import Web3 from "web3";
 import { networksToChainIdMap } from "../utils/network";
 
 
-const RPC_API = "https://rpc.testnet.casperlabs.io/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
