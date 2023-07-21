@@ -22,18 +22,19 @@ import { crucibleApi } from "../client";
 import { Web3Helper } from "../utils/web3Helper";
 import { networksToChainIdMap } from "../utils/network";
 
-const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.testnet.casperlabs.io/rpc";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
 
 export const CasperSwap = () => {
   const navigate = useHistory();
+  const { bridgePoolAddress }: any = useParams();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState();
   const [targetNetwork, setTargetNetwork] = useState('56');
-  const [targetToken, setTargetToken] = useState('BASE_FRM');
+  const [targetToken, setTargetToken] = useState('F_ERC20_b');
   const [processMsg, setProcessMsg] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const connection = useSelector((state: any) => state.casper.connect)
@@ -86,7 +87,9 @@ export const CasperSwap = () => {
     const casperWalletProvider = await window.CasperWalletProvider;    
     const provider = casperWalletProvider();
     const isConnected = await provider.isConnected();
+
     if (isConnected) {
+      try {
         const publicKey = await provider.getActivePublicKey();
         //textAddress.textContent += publicKey;
         const latestBlock = await casperService.getLatestBlockInfo();
@@ -100,7 +103,56 @@ export const CasperSwap = () => {
         
         // @ts-ignore
         const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
-        //textBalance.textContent = `PublicKeyHex ${balance.toString()}`;
+
+        const info = await casperService.getDeployInfo(
+          bridgePoolAddress
+        )
+
+        // @ts-ignore
+        const infoArguments = (info.deploy.session.ModuleBytes.args || []).find(
+          (e: any) => e[0] === 'erc20_contract_hash'
+        )
+
+
+        if (infoArguments) {
+          const token = infoArguments[1].parsed.split('-')[1]
+
+
+          const tokenName = await casperService.getBlockState(
+            //@ts-ignore
+            latestBlock?.block?.header?.state_root_hash,
+            `hash-${token}`,
+            ['name']
+          )
+  
+          const tokenSymbol = await casperService.getBlockState(
+             //@ts-ignore
+             latestBlock?.block?.header?.state_root_hash,
+             `hash-${token}`,
+             ['symbol']
+          )
+  
+
+          if(info.deploy.session) {
+            // @ts-ignore
+            configLoaded({
+              // @ts-ignore
+              config: info.deploy.session.ModuleBytes.args,
+              tokenInfo: {
+                tokenSymbol: tokenSymbol.CLValue?.data,
+                tokenName: tokenName.CLValue?.data
+              }
+            })(dispatch);
+            //@ts-ignore
+            signed(info.deploy.approvals)(dispatch)
+            //@ts-ignore
+          }
+        }
+        
+      } catch (error) {
+        console.log(error)
+        // toast.error(`An error occured Error: ${error}`);
+      }
     }
   }
 
@@ -135,18 +187,18 @@ export const CasperSwap = () => {
 
           const deployParams = new DeployUtil.DeployParams(
             senderPublicKey,
-            'casper-test'
+            'casper'
           );
 
           const args = RuntimeArgs.fromMap({
             "amount": CLValueBuilder.u256(amount),
-            "token_address": CLValueBuilder.string('contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'),
+            "token_address": CLValueBuilder.string('contract-package-wasmf70e0eadca8e489297dad2828ac00c89ac72effa26a4f03ded38b4dc43b0f55e'),
             "target_network": CLValueBuilder.u256(targetNetwork),
             "target_token": CLValueBuilder.string(networkData?.targetToken || targetToken),
           });
 
           const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-            decodeBase16('0a5a024fbc0c796ec6165de203e1e123fe0c207f943ebe1c542d77d333ff4510'),
+            decodeBase16('e0f1bcfbbc1554dc0cbd1316cc1658645b58898aa5add056985f9d6cb0f6f75b'),
             'swap',
             args
           );
@@ -229,7 +281,7 @@ export const CasperSwap = () => {
               />
               <FInputText
                 className={"f-mt-2"}
-                label={"BASE_FRM"}
+                label={"F_ERC20_b"}
                 disabled
                 value={targetToken}
                 onChange={(e: any) => {}}

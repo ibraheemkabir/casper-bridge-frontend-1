@@ -24,7 +24,7 @@ import AddressSelector from "../dialogs/AddressSelector";
 import { useHistory, useParams } from "react-router";
 import TxProcessingDialog from "../dialogs/TxProcessingDialog";
 
-const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.testnet.casperlabs.io/rpc";
 const STATUS_API = "https://4211-2a01-4b00-832a-3100-f467-7086-4cda-bb21.eu.ngrok.io/http://159.65.203.12:8888";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
@@ -100,6 +100,7 @@ const Header = () => {
           (e: any) => e[0] === 'erc20_contract_hash'
         )
 
+
         if (infoArguments) {
           const token = infoArguments[1].parsed.split('-')[1]
 
@@ -136,7 +137,8 @@ const Header = () => {
         }
         
       } catch (error) {
-        toast.error(`An error occured Error: ${error}`);
+        console.log(error)
+        // toast.error(`An error occured Error: ${error}`);
       }
     }
   }

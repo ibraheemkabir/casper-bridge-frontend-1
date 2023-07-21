@@ -28,7 +28,8 @@ import Web3 from "web3";
 import { networksToChainIdMap } from "../utils/network";
 
 
-const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.testnet.casperlabs.io/rpc";
+
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
@@ -105,16 +106,16 @@ export const Withdrawals = () => {
 
             const deployParams = new DeployUtil.DeployParams(
             senderPublicKey,
-            'casper-test'
+            'casper'
             );
 
             const args = RuntimeArgs.fromMap({
                 "amount": CLValueBuilder.u256(Number(amount).toFixed()),
-                "token_address": CLValueBuilder.string('contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'),
+                "token_address": CLValueBuilder.string('contract-package-wasmf70e0eadca8e489297dad2828ac00c89ac72effa26a4f03ded38b4dc43b0f55e'),
             });
     
             const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-            decodeBase16('2eaf3bf2cbc8e46f56ce04904592aa530141170fbee3473baeba4edfe9e87513'),
+            decodeBase16('e0f1bcfbbc1554dc0cbd1316cc1658645b58898aa5add056985f9d6cb0f6f75b'),
             'withdraw',
             args
             );
