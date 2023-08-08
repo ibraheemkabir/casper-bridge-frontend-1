@@ -1,4 +1,4 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore, PreloadedState } from "@reduxjs/toolkit";
 import { reduxBatch } from "@manaflair/redux-batch";
 import { casperSlice } from './casper/casperSlice';
 import {
@@ -7,15 +7,16 @@ import {
   } from "../components/connector";
 import { walletConnectorSlice } from "../components/connector/wallet-connector/walletAuthenticationSlice";
 
+export const rootReducer = combineReducers({
+    "connect": casperSlice.reducer,
+    walletConnector:  MetaMaskConnector.walletConnectorSlice.reducer,
+    walletApplicationWrapper: WalletApplicationWrapper.applicationWrapperSlice.reducer,
+    walletAuthenticator: walletConnectorSlice.reducer
+});
+
 const store = configureStore({
     reducer: {
-        casper: combineReducers({
-            "connect": casperSlice.reducer,
-            walletConnector:  MetaMaskConnector.walletConnectorSlice.reducer,
-            walletApplicationWrapper: WalletApplicationWrapper.applicationWrapperSlice.reducer,
-            walletAuthenticator: walletConnectorSlice.reducer
-        }),
-
+        casper: rootReducer
     },
     middleware: (getDefaultMiddleware) => 
      getDefaultMiddleware({
@@ -25,4 +26,11 @@ const store = configureStore({
     enhancers: [reduxBatch],
 })
 
+export function setupStore(preloadedState?: PreloadedState<RootState>) {
+    return store
+}
+
+export type RootState = ReturnType<typeof rootReducer>
+export type AppStore = ReturnType<typeof setupStore>
+export type AppDispatch = AppStore['dispatch']
 export default store;

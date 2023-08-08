@@ -65,6 +65,7 @@ const Header = () => {
     const casperWalletProvider = await window.CasperWalletProvider;    
     const provider = casperWalletProvider();
     provider.disconnectFromSite();
+    //@ts-ignore
     await resetWallet()(dispatch)
   };
 
@@ -162,7 +163,7 @@ const Header = () => {
                 onClick={disconnectWallet}
                 btnInfo={
                   <FItem display={"flex"}>
-                    <IconNetwork width={20} />{" "}
+                    { IconNetwork && <IconNetwork width={20} /> }{" "} 
                     <FTruncateText
                       className="f-ml-1"
                       text={connection?.selectedAccount?.address || ''}
