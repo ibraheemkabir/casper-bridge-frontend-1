@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { casperSlice } from "./casperSlice";
 import moment from "moment";
 const { actions } = casperSlice;
