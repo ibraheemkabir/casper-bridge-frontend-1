@@ -37,8 +37,15 @@ export const CasperSwap = () => {
   const [processMsg, setProcessMsg] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const connection = useSelector((state: any) => state.casper.connect)
-  const { connect: { config, selectedAccount, isWalletConnected, signedAddresses, } } = useSelector((state: any) => state.casper);
 
+  const { connect: { config, selectedAccount, isWalletConnected, signedAddresses, network } } = useSelector((state: any) => state.casper);
+
+  useEffect(() => {
+    //@ts-ignore
+    const casperWalletProvider = window.CasperWalletProvider;  
+    const provider = casperWalletProvider();
+    return provider
+  }, [])
 
   const { isConnected, isConnecting, currentWalletNetwork, walletAddress, networkClient } =
     useSelector((state: any) => state.casper.walletConnector);
@@ -107,7 +114,8 @@ export const CasperSwap = () => {
 
   const connectWallet = async () => {
     //@ts-ignore
-    const casperWalletProvider = await window.CasperWalletProvider;    
+    const casperWalletProvider = await window.CasperWalletProvider;
+    
     const provider = casperWalletProvider();
 
     const isConnected = await provider.isConnected();
@@ -195,7 +203,7 @@ export const CasperSwap = () => {
 
   return (
     <>
-         <FCard className={"card-staking f-mb-2"}>
+      <FCard className={"card-staking f-mb-2"}>
         <FGrid>
           <FTypo size={18} align={"center"} className={"f-mb--5 f-mt--7"}>
             SWAP FROM {networkData?.chain || 'BSC'} TO CASPER
@@ -207,6 +215,7 @@ export const CasperSwap = () => {
                 label={"AMOUNT TO SWAP"}
                 placeholder={"0"}
                 value={amount}
+                data-testid={"bsctocasper_input"}
                 onChange={(e: any) => {
                   e.preventDefault();
                   const re = /^-?\d*\.?\d*$/;
@@ -236,13 +245,14 @@ export const CasperSwap = () => {
               />
               {
                 isConnected ?
-                 (
-                   <FButton 
-                     title={"SWAP"}
-                     className="w-100 f-mt-2"
-                     onClick={() => swapEvm()}
-                   />
-                 )
+                (
+                  <FButton 
+                    title={"SWAP"}
+                    className="w-100 f-mt-2"
+                    data-testid={'swap-casper-button'}
+                    onClick={() => swapEvm()}
+                  />
+                )
                 : (
                   <div className="w-100 f-mt-2">
                     <MetaMaskConnector.WalletConnector
@@ -256,7 +266,6 @@ export const CasperSwap = () => {
               }
             </FItem>
           </FGridItem>
-         
         </FGrid>
         <ConfirmationDialog amount={amount} onHide={() =>setShowConfirmation(false)} transaction={processMsg} message={'Transaction sent to network and is processing.'} show={showConfirmation} isSwap={true} network={networkData?.sendNetwork} />
         <TxProcessingDialog onHide={() =>setLoading(false)} message={ processMsg || "Transaction Processing...."} show={loading}/>
@@ -280,6 +289,7 @@ export const CasperSwap = () => {
                     setAmount(e.target.value);
                   }
                 }}
+                data-testid={"caspertobsc_input"}
                 postfix={
                   <FTypo className={"f-pr-1"} color="#dab46e">
                     TOKEN
@@ -302,11 +312,15 @@ export const CasperSwap = () => {
               />
               {
                 connection.isWalletConnected && (
-                  <FButton 
-                    title={"SWAP"}
-                    className="w-100 f-mt-2"
-                    onClick={() => performSwap()}
-                  />
+                  <>
+                    <FButton 
+                      title={"SWAP"}
+                      className="w-100 f-mt-2"
+                      data-testid={'swap-casper-button'}
+                      onClick={() => performSwap()}
+                    />
+                    <div className="w-100 f-mt-2 flex jc jc-end" style={{"cursor": "pointer"}} onClick={() => performCasperApproval()}>Approve</div>
+                  </>
                 )
               }
               {
