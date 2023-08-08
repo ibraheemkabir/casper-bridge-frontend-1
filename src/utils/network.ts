@@ -26,7 +26,7 @@ export const networksToChainIdMap = {
         "sendAddress": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
         currency: 'BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179',
         "sendCurrency": "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
-        "targetToken": "BASE_FRM",
+        "targetToken": "BASE_FRM_T",
     },
     "97":  {
         "sendNetwork": "BSC_TESTNET",
@@ -34,7 +34,7 @@ export const networksToChainIdMap = {
         "sendAddress": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
         currency: 'BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179',
         "sendCurrency": "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
-        "targetToken": "BASE_FRM",
+        "targetToken": "BASE_FRM_T",
     },
     "5": {
         "sendNetwork": "GOERLI_TESTNET",
