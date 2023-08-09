@@ -16,11 +16,6 @@ import { CasperServiceByJsonRPC, CLPublicKey, CLValue,
 import toast from "react-hot-toast";
 import TxProcessingDialog from "../dialogs/TxProcessingDialog";
 import ConfirmationDialog from "../dialogs/ConfirmationDialog";
-import { MetaMaskConnector } from "../components/connector";
-import { ConnectWalletDialog } from "../utils/connect-wallet/ConnectWalletDialog";
-import { crucibleApi } from "../client";
-import { Web3Helper } from "../utils/web3Helper";
-import { Withdrawals } from "../components/Withdrawals";
 
 const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
 
@@ -29,11 +24,12 @@ const casperClient = new CasperClient(RPC_API);
 
 export const CasperWithdrawal = () => {
   const navigate = useHistory();
+  const { bridgePoolAddress }: any = useParams();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState();
   const [targetNetwork, setTargetNetwork] = useState('56');
-  const [targetToken, setTargetToken] = useState('BASE_FRM');
+  const [targetToken, setTargetToken] = useState('F_ERC20_b');
   const [processMsg, setProcessMsg] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const connection = useSelector((state: any) => state.casper.connect)
@@ -52,13 +48,15 @@ export const CasperWithdrawal = () => {
     config?.withdrawEnds
   );
 
+  
   async function AccountInformation() {
     //@ts-ignore
     const casperWalletProvider = await window.CasperWalletProvider;    
     const provider = casperWalletProvider();
-
     const isConnected = await provider.isConnected();
+
     if (isConnected) {
+      try {
         const publicKey = await provider.getActivePublicKey();
         //textAddress.textContent += publicKey;
 
@@ -71,13 +69,60 @@ export const CasperWithdrawal = () => {
         }])(dispatch)
         const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(latestBlock?.block?.header?.state_root_hash || '', CLPublicKey.fromHex(publicKey));
         
+        if (latestBlock?.block?.header?.state_root_hash) {
+          const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
+        }
+
+        const info = await casperService.getDeployInfo(
+          bridgePoolAddress
+        )
+
         // @ts-ignore
-        const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
-        console.log(balance.toString())
-        //textBalance.textContent = `PublicKeyHex ${balance.toString()}`;
+        const infoArguments = (info.deploy.session.ModuleBytes.args || []).find(
+          (e: any) => e[0] === 'erc20_contract_hash'
+        )
+
+        if (infoArguments) {
+          const token = infoArguments[1].parsed.split('-')[1]
+
+
+          const tokenName = await casperService.getBlockState(
+            //@ts-ignore
+            latestBlock?.block?.header?.state_root_hash,
+            `hash-${token}`,
+            ['name']
+          )
+  
+          const tokenSymbol = await casperService.getBlockState(
+             //@ts-ignore
+             latestBlock?.block?.header?.state_root_hash,
+             `hash-${token}`,
+             ['symbol']
+          )
+  
+
+          if(info.deploy.session) {
+            // @ts-ignore
+            configLoaded({
+              // @ts-ignore
+              config: info.deploy.session.ModuleBytes.args,
+              tokenInfo: {
+                tokenSymbol: tokenSymbol.CLValue?.data,
+                tokenName: tokenName.CLValue?.data
+              }
+            })(dispatch);
+            //@ts-ignore
+            signed(info.deploy.approvals)(dispatch)
+            //@ts-ignore
+          }
+        }
+        
+      } catch (error: unknown) {
+        if (error?.toString().includes('params')) return
+        toast.error(`An error occured Error: ${error}`);
+      }
     }
   }
-
 
   const connectWallet = async () => {
     //@ts-ignore
@@ -116,7 +161,7 @@ export const CasperWithdrawal = () => {
 
           const args = RuntimeArgs.fromMap({
             "amount": CLValueBuilder.u256(amount),
-            "token_address": CLValueBuilder.string('contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'),
+            "token_address": CLValueBuilder.string('contract-package-wasmf70e0eadca8e489297dad2828ac00c89ac72effa26a4f03ded38b4dc43b0f55e'),
             "payee": CLValueBuilder.string('0203d3a2770de0d4fe892c74e4e33f98580bb6136b1ab35f1244b0cf0758b3d1d3b3'),
             "signature": CLValueBuilder.string('7369676e6174757265'),
             "salt": CLValueBuilder.string('0000000000000000000000000000000000000000000000000000000000000001'),
@@ -158,9 +203,9 @@ export const CasperWithdrawal = () => {
           toast.error("Amount must be greater than 0");
         }
       } catch (e) {
-        console.log("ERROR : ", e);
+        // console.log("ERROR : ", e);
         toast.error("An error occured please see console for details");
-        navigate.push(`/${config._id}`);
+        // navigate.push(`/${config._id}`);
       } finally {
         //setLoading(false)
       }
@@ -215,7 +260,7 @@ export const CasperWithdrawal = () => {
                 className={"f-mt-2"}
                 label={"Token Address"}
                 disabled
-                value={'contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'}
+                value={'contract-package-wasmf70e0eadca8e489297dad2828ac00c89ac72effa26a4f03ded38b4dc43b0f55e'}
                 onChange={(e: any) => {}}
               />
               <FInputText

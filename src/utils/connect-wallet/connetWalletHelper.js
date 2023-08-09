@@ -87,6 +87,6 @@ const providerOptions = {
       await subscribeProvider(provider, web3, setAddress, setConnected, setNetwork);
       return walletInformation; 
     } catch (e) {
-      toast.error(`Error Occured ${e}`); 
+      // toast.error(`Error Occured ${e}`); 
     }
   };

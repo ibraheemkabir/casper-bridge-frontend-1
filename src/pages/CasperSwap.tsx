@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FButton, FCard, FGrid, FGridItem, FInputText, FItem, FTypo } from "ferrum-design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getStakingInfo } from "../utils/DateUtil";
@@ -21,6 +21,7 @@ import { ConnectWalletDialog } from "../utils/connect-wallet/ConnectWalletDialog
 import { crucibleApi } from "../client";
 import { Web3Helper } from "../utils/web3Helper";
 import { networksToChainIdMap } from "../utils/network";
+import { setContractHash } from "../utils/stringParser";
 
 const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
 
@@ -29,11 +30,12 @@ const casperClient = new CasperClient(RPC_API);
 
 export const CasperSwap = () => {
   const navigate = useHistory();
+  const { bridgePoolAddress }: any = useParams();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState();
-  const [targetNetwork, setTargetNetwork] = useState('56');
-  const [targetToken, setTargetToken] = useState('BASE_FRM');
+  const [targetNetwork, setTargetNetwork] = useState('30');
+  const [targetToken, setTargetToken] = useState('BASE_FRM_T');
   const [processMsg, setProcessMsg] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const connection = useSelector((state: any) => state.casper.connect)
@@ -87,13 +89,14 @@ export const CasperSwap = () => {
     }
 	}
 
-
   async function AccountInformation() {
     //@ts-ignore
     const casperWalletProvider = await window.CasperWalletProvider;    
     const provider = casperWalletProvider();
     const isConnected = await provider.isConnected();
+
     if (isConnected) {
+      try {
         const publicKey = await provider.getActivePublicKey();
         //textAddress.textContent += publicKey;
         const latestBlock = await casperService.getLatestBlockInfo();
@@ -105,12 +108,60 @@ export const CasperSwap = () => {
         }])(dispatch)
         const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(latestBlock?.block?.header?.state_root_hash || '', CLPublicKey.fromHex(publicKey));
         
+        if (latestBlock?.block?.header?.state_root_hash) {
+          const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
+        }
+
+        const info = await casperService.getDeployInfo(
+          bridgePoolAddress
+        )
+
         // @ts-ignore
-        const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
-        //textBalance.textContent = `PublicKeyHex ${balance.toString()}`;
+        const infoArguments = (info.deploy.session.ModuleBytes.args || []).find(
+          (e: any) => e[0] === 'erc20_contract_hash'
+        )
+
+        if (infoArguments) {
+          const token = infoArguments[1].parsed.split('-')[1]
+
+
+          const tokenName = await casperService.getBlockState(
+            //@ts-ignore
+            latestBlock?.block?.header?.state_root_hash,
+            `hash-${token}`,
+            ['name']
+          )
+  
+          const tokenSymbol = await casperService.getBlockState(
+             //@ts-ignore
+             latestBlock?.block?.header?.state_root_hash,
+             `hash-${token}`,
+             ['symbol']
+          )
+  
+
+          if(info.deploy.session) {
+            // @ts-ignore
+            configLoaded({
+              // @ts-ignore
+              config: info.deploy.session.ModuleBytes.args,
+              tokenInfo: {
+                tokenSymbol: tokenSymbol.CLValue?.data,
+                tokenName: tokenName.CLValue?.data
+              }
+            })(dispatch);
+            //@ts-ignore
+            signed(info.deploy.approvals)(dispatch)
+            //@ts-ignore
+          }
+        }
+        
+      } catch (error: unknown) {
+        if (error?.toString().includes('params')) return
+        toast.error(`An error occured Error: ${error}`);
+      }
     }
   }
-
 
   const connectWallet = async () => {
     //@ts-ignore
@@ -188,13 +239,82 @@ export const CasperSwap = () => {
         }
       } catch (e) {
         toast.error("An error occured please see console for details");
-        navigate.push(`/${config._id}`);
+        navigate.push(`/${config?._id}`);
       } finally {
         //setLoading(false)
       }
 
     } else {
       navigate.push(`/${config._id}`);
+    }
+  };
+
+  const performCasperApproval = async () => {
+    if (
+      isWalletConnected &&
+      selectedAccount
+    ) {
+      //@ts-ignore
+      const casperWalletProvider = await window.CasperWalletProvider;    
+      const provider = casperWalletProvider();
+      try {
+        // (selectedAccount?.address, Number(amount));
+        const publicKeyHex = selectedAccount?.address;
+        const senderPublicKey = CLPublicKey.fromHex(publicKeyHex);
+
+        const deployParams = new DeployUtil.DeployParams(
+        senderPublicKey,
+        'casper-test'
+        );
+
+        const args = RuntimeArgs.fromMap({
+            "amount": CLValueBuilder.u256(Number(5000000000000000).toFixed()),
+            'spender': setContractHash(`hash-a133484f7efb6f3bad059b504bc664646ad57f9b0b918d1fe3a50ab657c58f19`)
+          });
+
+        const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+        decodeBase16('c61b6b105dd1b44b3553c879cc64a7ab5d2223107d29277307dd262d812df957'),
+        'approve',
+        args
+        );
+
+        const payment = DeployUtil.standardPayment(2000000000);
+
+        const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
+
+        const deployJson: any = DeployUtil.deployToJson(deploy);
+    
+        provider.sign(JSON.stringify(deployJson), publicKeyHex).then(async (signedDeployJson: any) => {
+            const signedDeploy = DeployUtil.setSignature(
+              deploy,
+              signedDeployJson.signature,
+              CLPublicKey.fromHex(publicKeyHex)
+            );
+
+            if (signedDeploy) {
+                const res = await casperClient.putDeploy(signedDeploy);
+                console.log(res, 'resres');
+                if (res) {
+                
+                }
+                setProcessMsg(res)
+                setLoading(false)
+                setShowConfirmation(true)
+            }
+        });
+          // navigate.push(`/${config._id}`);
+        //toast.success(`${amount} tokens are staked successfully`);
+        
+        } catch (e) {
+          console.log("ERROR : ", e);
+            toast.error("An error occured please see console for details");
+            navigate.push(`/${config._id}`);
+        } finally {
+        //setLoading(false)
+        }
+
+    } else {
+        navigate.push(`/${config._id}`);
     }
   };
 
@@ -238,7 +358,7 @@ export const CasperSwap = () => {
               />
               <FInputText
                 className={"f-mt-2"}
-                label={"BASE_FRM"}
+                label={"F_ERC20_b"}
                 disabled
                 value={targetToken}
                 onChange={(e: any) => {}}
@@ -267,7 +387,18 @@ export const CasperSwap = () => {
             </FItem>
           </FGridItem>
         </FGrid>
-        <ConfirmationDialog amount={amount} onHide={() =>setShowConfirmation(false)} transaction={processMsg} message={'Transaction sent to network and is processing.'} show={showConfirmation} isSwap={true} network={networkData?.sendNetwork} />
+        <ConfirmationDialog
+          amount={amount}
+          onHide={() => {
+            setShowConfirmation(false)
+            setProcessMsg("")
+          }} 
+          transaction={processMsg}
+          message={'Transaction sent to network and is processing.'}
+          show={showConfirmation}
+          isSwap={true}
+          network={networkData?.sendNetwork}
+        />
         <TxProcessingDialog onHide={() =>setLoading(false)} message={ processMsg || "Transaction Processing...."} show={loading}/>
       </FCard>
       <FCard className={"card-staking f-mb-2"}>

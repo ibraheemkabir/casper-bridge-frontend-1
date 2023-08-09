@@ -13,5 +13,5 @@ module.exports = {
     collectCoverageFrom: ['src/**/*.{js,jsx}', 'src/**/*.{ts,tsx}'],
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     coverageDirectory: 'coverage',
-    testEnvironment: 'jsdom',
+    testEnvironment: 'jest-environment-jsdom',
 }

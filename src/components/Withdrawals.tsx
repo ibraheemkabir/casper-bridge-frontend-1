@@ -215,7 +215,16 @@ export const Withdrawals = () => {
                     <Datatable tableBody={body || []} tableHeaders={tableHeads} rowsPerPage={10} />
                 </FTable>
             </FGrid>
-            <ConfirmationDialog onHide={() =>setShowConfirmation(false)} transaction={processMsg} message={'Transaction sent to network and is processing.'} show={showConfirmation} isSwap={false} />
+            <ConfirmationDialog
+              onHide={() => {
+                setShowConfirmation(false)
+                setProcessMsg("")
+              }}
+              transaction={processMsg}
+              message={'Transaction sent to network and is processing.'}
+              show={showConfirmation}
+              isSwap={false}
+            />
             <TxProcessingDialog onHide={() =>setLoading(false)} message={ processMsg || "Transaction Processing...."} show={loading}/>
         </>
     )

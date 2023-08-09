@@ -14,10 +14,25 @@ jest.mock('react-router-dom', () => ({
     useParams: jest.fn().mockReturnValue({ environment: 'dev', service: 'fakeService' }),
 }))
 
-const casperProvider = jest.fn()
+const casperProvider = jest.fn().mockReturnValue({ isConnected: jest.fn() });
+
+Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation(query => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(), // Deprecated
+        removeListener: jest.fn(), // Deprecated
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+    }))
+});
+
 //@ts-ignore
 window.CasperWalletProvider = casperProvider;
-  
+
 describe('BscToCasper page tests', () => {
     it('should contain swap from casper to bsc card', () => {
         renderWithProviders(<App />);
@@ -81,7 +96,6 @@ describe('BscToCasper page tests', () => {
 
     it('should show swap button when wallet is connected', () => {
         setupStore().dispatch(casperSlice.actions.connectWallet({}))
-        console.log(setupStore().getState(), 'getStategetState')
 
         const ethereumProvider = jest.fn()
         //@ts-ignore
