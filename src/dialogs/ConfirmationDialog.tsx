@@ -90,7 +90,12 @@ const ConfirmationDialog = ({
       <FDialog
         variant={"dark"}
         size={"medium"}
-        onHide={() => onHide()}
+        onHide={() => {
+          onHide()
+          setIsDone(false)
+          setProcessing(false)
+          setIsSuccessful(false)
+        }}
         show={show}
         className="connect-wallet-dialog text-center"
         showClose={true}

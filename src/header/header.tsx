@@ -32,7 +32,6 @@ const casperClient = new CasperClient(RPC_API);
 
 const Header = () => {
   const dispatch = useDispatch();
-  const par = useParams();
   const { bridgePoolAddress }: any = useParams();
   const navigate = useHistory();
   const connection = useSelector((state: any) => state.casper.connect)
@@ -89,8 +88,9 @@ const Header = () => {
         }])(dispatch)
         const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(latestBlock?.block?.header?.state_root_hash || '', CLPublicKey.fromHex(publicKey));
         
-        // @ts-ignore
-        const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
+        if (latestBlock?.block?.header?.state_root_hash) {
+          const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
+        }
 
         const info = await casperService.getDeployInfo(
           bridgePoolAddress
@@ -136,7 +136,8 @@ const Header = () => {
           }
         }
         
-      } catch (error) {
+      } catch (error: unknown) {
+        if (error?.toString().includes('params')) return
         toast.error(`An error occured Error: ${error}`);
       }
     }
@@ -152,7 +153,7 @@ const Header = () => {
           {connection?.isWalletConnected ? (
             <>
               <FButton
-                prefix={<CgArrowsExchangeAlt />}
+                prefix={CgArrowsExchangeAlt && <CgArrowsExchangeAlt />}
                 onClick={() => {
                   setShowAddressSelectorDlg(true);
                 }}
@@ -163,7 +164,7 @@ const Header = () => {
                 onClick={disconnectWallet}
                 btnInfo={
                   <FItem display={"flex"}>
-                    { IconNetwork && <IconNetwork width={20} /> }{" "} 
+                    {IconNetwork && <IconNetwork width={20} /> }
                     <FTruncateText
                       className="f-ml-1"
                       text={connection?.selectedAccount?.address || ''}
