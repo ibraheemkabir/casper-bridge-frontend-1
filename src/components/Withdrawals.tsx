@@ -28,7 +28,7 @@ import Web3 from "web3";
 import { networksToChainIdMap } from "../utils/network";
 
 
-const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
@@ -36,6 +36,7 @@ const casperClient = new CasperClient(RPC_API);
 export const Withdrawals = () => {
     const { connect: { config, selectedAccount, isWalletConnected, withdrawalItems } } = useSelector((state: any) => state.casper);
     const { walletAddress, isConnected, networkClient, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
+    console.log(walletAddress, selectedAccount , currentWalletNetwork)
     const [loading, setLoading] = useState(false);
     const [processMsg, setProcessMsg] = useState('');
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -59,7 +60,7 @@ export const Withdrawals = () => {
                 "sendAddress": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
                 "receiveAddress": "017fbbccf39a639a1a5f469e3fb210d9f355b532bd786f945409f0fc9a8c6313b1",
                 "sendCurrency": networkData?.sendCurrency || `${networkData.sendNetwork}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
-                "sendAmount":  Web3.utils.toWei(item.sendAmount, 'ether'),
+                "sendAmount":  currentWalletNetwork === 1 ? (Number(item.sendAmount) * 1000000) : Web3.utils.toWei(item.sendAmount, 'ether'),
                 "receiveCurrency": "CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473"
               },
               "params": []
@@ -80,7 +81,7 @@ export const Withdrawals = () => {
         const Api = new crucibleApi()
         await Api.signInToServer(`CSPR:${selectedAccount?.address}`)
         const userWithdrawals = await Api.gatewayApi({
-            command: 'getUserNonEvmWithdrawItems', data: {
+          command: 'getUserNonEvmWithdrawItems', data: {
             userAddress: `${selectedAccount?.address}`,
             network: "MUMBAI_TESTNET",
             receiveAddress: walletAddress,
@@ -105,16 +106,16 @@ export const Withdrawals = () => {
 
             const deployParams = new DeployUtil.DeployParams(
             senderPublicKey,
-            'casper-test'
+            'casper'
             );
 
             const args = RuntimeArgs.fromMap({
-                "amount": CLValueBuilder.u256(Number(amount).toFixed()),
-                "token_address": CLValueBuilder.string('contract-package-wasme222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473'),
-            });
+                "amount": CLValueBuilder.u256(Number(amount) * 100),
+                "token_address": CLValueBuilder.string('contract-package-wasm5fe4b52b2b1a3a0eebdc221ec9e290df1535ad12a7fac37050095201f449acc4'),
+              });
     
             const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-            decodeBase16('2eaf3bf2cbc8e46f56ce04904592aa530141170fbee3473baeba4edfe9e87513'),
+            decodeBase16('e0f1bcfbbc1554dc0cbd1316cc1658645b58898aa5add056985f9d6cb0f6f75b'),
             'withdraw',
             args
             );
@@ -189,7 +190,8 @@ export const Withdrawals = () => {
             {
                 isConnected
                 ? (<FButton title={"Withdraw"} onClick={() => 
-                  item.receiveCurrency.split(":")[0] === 'CSPR' ? performCasperWithdraw(item.sendAmount) : withdrawEvm(item.id, item)
+                  item?.sendNetwork != '109090' ? 
+                  performCasperWithdraw((amount).toString()) : withdrawEvm(item.id, item)
                 } />)
                 : (
                     <MetaMaskConnector.WalletConnector
