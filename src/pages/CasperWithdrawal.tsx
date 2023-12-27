@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 import TxProcessingDialog from "../dialogs/TxProcessingDialog";
 import ConfirmationDialog from "../dialogs/ConfirmationDialog";
 
-const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
@@ -29,7 +29,7 @@ export const CasperWithdrawal = () => {
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState();
   const [targetNetwork, setTargetNetwork] = useState('56');
-  const [targetToken, setTargetToken] = useState('F_ERC20_b');
+  const [targetToken, setTargetToken] = useState('Ferrum_Test_Token');
   const [processMsg, setProcessMsg] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const connection = useSelector((state: any) => state.casper.connect)
@@ -74,7 +74,7 @@ export const CasperWithdrawal = () => {
         }
 
         const info = await casperService.getDeployInfo(
-          bridgePoolAddress
+          'aaa631f3491be84ebd92485f95e0d311288fc6f4e529756b4da63870eee8a416'
         )
 
         // @ts-ignore
@@ -156,19 +156,19 @@ export const CasperWithdrawal = () => {
 
           const deployParams = new DeployUtil.DeployParams(
             senderPublicKey,
-            'casper-test'
+            'casper'
           );
 
           const args = RuntimeArgs.fromMap({
             "amount": CLValueBuilder.u256(amount),
-            "token_address": CLValueBuilder.string('contract-package-wasmf70e0eadca8e489297dad2828ac00c89ac72effa26a4f03ded38b4dc43b0f55e'),
+            "token_address": CLValueBuilder.string('contract-package-wasm5fe4b52b2b1a3a0eebdc221ec9e290df1535ad12a7fac37050095201f449acc4'),
             "payee": CLValueBuilder.string('0203d3a2770de0d4fe892c74e4e33f98580bb6136b1ab35f1244b0cf0758b3d1d3b3'),
             "signature": CLValueBuilder.string('7369676e6174757265'),
             "salt": CLValueBuilder.string('0000000000000000000000000000000000000000000000000000000000000001'),
           });
 
           const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
-            decodeBase16('c312f4eda82c253e2817f41586ce0af99294d652507c2c7827bb6abbdc0f6e0f'),
+            decodeBase16('e0f1bcfbbc1554dc0cbd1316cc1658645b58898aa5add056985f9d6cb0f6f75b'),
             'withdraw_signed',
             args
           );
@@ -260,7 +260,7 @@ export const CasperWithdrawal = () => {
                 className={"f-mt-2"}
                 label={"Token Address"}
                 disabled
-                value={'contract-package-wasmf70e0eadca8e489297dad2828ac00c89ac72effa26a4f03ded38b4dc43b0f55e'}
+                value={'contract-package-wasmf62cbf870864bfc333bd49b966cc0befcdecb335deff1937661af05971853390'}
                 onChange={(e: any) => {}}
               />
               <FInputText

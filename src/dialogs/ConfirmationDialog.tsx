@@ -7,8 +7,9 @@ import Failure from "./../assets/images/FailureIcon.svg";
 import LoaderGif from "./../assets/images/loading2.gif";
 import { crucibleApi } from "../client";
 import { useSelector } from "react-redux";
+import { networksToChainIdMap } from "../utils/network";
 
-const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
 const casperClient = new CasperClient(RPC_API);
@@ -26,9 +27,9 @@ const ConfirmationDialog = ({
     const [isSuccessful, setIsSuccessful] = useState(false)
     const [isDone, setIsDone] = useState(false)
     const [intervalId, setIntervalId] = useState(null as any)
-    const { connect: { config, selectedAccount, isWalletConnected, signedAddresses, } } = useSelector((state: any) => state.casper);
+    const { connect: { config, selectedAccount, isWalletConnected, signedAddresses } } = useSelector((state: any) => state.casper);
     const { walletAddress, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
-
+    
     const checkTransaction = async () => {
         setProcessing(true)
         const res = await casperService.getDeployInfo(transaction)
@@ -45,18 +46,21 @@ const ConfirmationDialog = ({
             setProcessing(false)
             setIsDone(true)
             setIsSuccessful(true)
+            //@ts-ignore
+            const networkData = networksToChainIdMap[currentWalletNetwork]
             if (isSwap) {
               const Api = new crucibleApi()
               await Api.signInToServer(walletAddress)
               const logTransaction = await Api.gatewayApi({
-                command: 'logEvmAndNonEvmTransaction', data: {
-                  receiveNetwork: currentWalletNetwork || '56',
+                command: 'logCsprTransaction', data: {
+                  receiveNetwork: networkData.sendNetwork,
                   sendAmount: amount,
                   sendAddress: `${selectedAccount?.address}`,
+                  receiveAddress: walletAddress,
                   sendNetwork: '109090',
                   sendTimestamp: Date.now(),
-                  sendCurrencyS: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
-                  receiveCurrency: `${network}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
+                  sendCurrency: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
+                  receiveCurrency: `${networkData.sendCurrency}`,
                   creator: `cspr:${selectedAccount?.address}`,
                   id: transaction
               }, params: [] });
@@ -120,7 +124,7 @@ const ConfirmationDialog = ({
               :  (message || 'Loading')
             }
           </FTypo>
-          <a href={`https://testnet.cspr.live/deploy/${transaction}`} target="_blank" style={{"color": "white"}}>
+          <a href={`https://cspr.live/deploy/${transaction}`} target="_blank" style={{"color": "white"}}>
             <FTypo size={15} className={"f-mb--5 f-mt--9"}>
               <FTruncateText text={transaction} />
             </FTypo>
