@@ -95,38 +95,92 @@ On starting application, the dashboard contains two cards, the first card is for
 
 **EVM TO NON-EVM SWAP**
 
-On the first card, enter amount to be swapped from BSC to Casper blockchain.
+The bridge application allows users to swap from three EVM networks to casper network. The allowed networks withing the application are :
 
-Ensure wallet Approval as been established by calling approval method from contract
+1) BSC <> CASPER
+2) ETHEREUM <> CASPER
+3) POLYGON <> CASPER
+
+To conduct a swap between these networks and the casper network. The following steps are taken to carry this out.
+
+On opening the app, the home page presents users with two swap cards.
+
+The first card is for swapping from the connected EVM chain to the capser chain.
+
+If browser EVM wallet is not connected, click the connect button on the first card.
+
+This should trigger connect flow on EVM wallet, on connecting to the wallet.
+
+The card should display the connected chain to capser chain, kindly ensure the wallet is connected to one of the allowed chains  i.e BSC, POLYGON and ETHEREUM.
+
+After connecting EVM wallet, there is also need to connect CASPER wallet.
+
+To connect casper wallet, click on the `connect to casper wallet` button on the header.
+
+This should also trigger the casper wallet connect sequence and should display the connected wallet address on the header on successful connection.
+
+On the first card, enter amount to be swapped from the connected EVM network to the Casper blockchain.
+
+Ensure wallet Approval as been established by allowing approval from contract, if it is the first time executing swaps.
 
 Click on swap button to execute swap.
 
 This triggers a wallet transaction on metamask and on approving transaction request will pop up transaction modal with details of the executed transaction.
 
-On completion of the swap results on chain, click on withdrawal screen and execute corresponding withdrawal on destination chain by clicking withdrawal button.
+On completion of the swap on chain.
+
+click on withdrawals label on the header. This will display a list of withdrawal items based on executed swaps of current user.
+
+For every executed swap on the EVM chain, there is a conttesponding withdrawal item to be withdrawn on the casper chain.
+
+The just executed swap will have a withdraw item, which is likely the last on the list of withdraw items.
+
+On clicking `withdraw now` on the item will trigger the transfer of funds to the casper wallet.
 
 <br />
 
 **NON-EVM TO EVM SWAP**
 
-On dashboard, the second card allows swap from NON-EVM TO EVM sources, to execute this transaction, enter amount to 
+The bridge application allows users to swap from three EVM networks to casper network. The allowed networks withing the application are :
 
-be swapped in required field and execute swap transaction by click on swap button. Casper signer transaction is triggered and 
+1) CASPER <> BSC
+2) CASPER <> ETHEREUM
+3) CASPER <> POLYGON
 
-user can execute the transaction on pop up and confirmation modal monitors trasaction progress.
+To conduct a swap between the casper network and these networks. The following steps are taken to carry this out.
 
-On swap transaction completion, user can then go on to active withdrawals (link in dashboard header)
+On opening the app, the home page presents users with two swap cards.
+
+The second card is for swapping from the capser chain to the connected EVM chain.
+
+If browser EVM wallet is not connected, click the connect button on the first card.
+
+This should trigger connect flow on EVM wallet, on connecting to the wallet.
+
+On the second card, if casper wallet is not connected, click on the connect casper wallet button on the second card to trigger casper wallet connection.
+
+After connecting both wallets, the second card allows swap from casper chain TO EVM sources.
+
+To execute this transaction, enter amount to be swapped in required field and execute swap transaction by click on swap button.
+
+Casper signer transaction is triggered and users can execute the transaction on pop up. 
+
+A confirmation modal pops up which will monitor trasaction progress.
+
+On swap transaction completion, users can then go on to active withdrawals (link in dashboard header)
+
+click on withdrawals label on the header. This will display a list of withdrawal items based on executed swaps of current user.
 
 Withdrawal can be executed as detailed above in previous step.
+
 <br />
 
 **Steps to carry out withdrawals**
 <br />
 
 All withdrawals are listed chronologically on the withdrawal page. Users can execute withdrawals on the withdrawal page. The withdraw page contains all the executable withdrawals on the two chains supported in this shell application.
-To execute a swap, users need to 
 
-Connect to source and destination wallet
+To execute a swap, users need to Connect to source and destination wallet
 
 Select transaction to withdraw and accept transaction prompt on corresponding wallet.
 

@@ -24,11 +24,10 @@ import AddressSelector from "../dialogs/AddressSelector";
 import { useHistory, useParams } from "react-router";
 import TxProcessingDialog from "../dialogs/TxProcessingDialog";
 
-const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=http://44.208.234.65:7777/rpc";
+const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
 const STATUS_API = "https://4211-2a01-4b00-832a-3100-f467-7086-4cda-bb21.eu.ngrok.io/http://159.65.203.12:8888";
 
 const casperService = new CasperServiceByJsonRPC(RPC_API);
-const casperClient = new CasperClient(RPC_API);
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -39,8 +38,6 @@ const Header = () => {
 
 
   const [showAddressSelectorDlg, setShowAddressSelectorDlg] =  useState<boolean>(false);
-
-  const selectedAccount: { address?: string } = {};
 
   const connectWallet = async () => {
     //@ts-ignore
@@ -87,14 +84,16 @@ const Header = () => {
           "address": publicKey
         }])(dispatch)
         const balanceUref = await casperService.getAccountBalanceUrefByPublicKey(latestBlock?.block?.header?.state_root_hash || '', CLPublicKey.fromHex(publicKey));
-        
+
         if (latestBlock?.block?.header?.state_root_hash) {
           const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
         }
 
         const info = await casperService.getDeployInfo(
-          bridgePoolAddress
+          'aaa631f3491be84ebd92485f95e0d311288fc6f4e529756b4da63870eee8a416'
         )
+        
+        console.log(info, 'infoinfo')
 
         // @ts-ignore
         const infoArguments = (info.deploy.session.ModuleBytes.args || []).find(
@@ -147,9 +146,18 @@ const Header = () => {
     <div>
       <FHeader showLogo={true} headerLogo={logo} className="bg-none">
         <FItem display={"flex"} align="right" alignY={"center"}>
-          <FItem display={"flex"} align="right" alignY={"center"}>
-            <span style={{"cursor": "pointer"}} onClick={() => navigate.push(`/withdraw`)}>My Withdrawals</span>
-          </FItem>
+          {
+            connection?.isWalletConnected && (
+              <>
+                <FItem display={"flex"} align="right" alignY={"center"}>
+                  <span style={{"cursor": "pointer"}} onClick={() => navigate.push(`/withdraw`)}>My Withdrawals</span>
+                </FItem>
+                <FItem display={"flex"} align="right" alignY={"center"}>
+                  <span style={{"cursor": "pointer", "marginRight": "1rem"}} onClick={() => navigate.push(`/liquidity`)}>Add liquidity</span>
+                </FItem>
+              </>
+            )
+          }
           {connection?.isWalletConnected ? (
             <>
               <FButton
@@ -176,7 +184,7 @@ const Header = () => {
           ) : (
             <FButton
               className="f-mr-1"
-              title={"Connect Wallet"}
+              title={"Connect to Casper Wallet"}
               onClick={connectWallet}
             ></FButton>
           )}
