@@ -1,6 +1,6 @@
 import { FTypo, FGrid, FTable, FHeader, FButton } from "ferrum-design-system";
 import { useEffect, useState } from "react";
-import Datatable from "react-bs-datatable";
+import { DatatableWrapper } from "react-bs-datatable";
 import { useDispatch, useSelector } from "react-redux";
 import { crucibleApi } from "../client";
 import { fetchWithdrawals } from "../redux/casper/casperActions";
@@ -191,7 +191,7 @@ export const Withdrawals = () => {
                 isConnected
                 ? (<FButton title={"Withdraw"} onClick={() => 
                   item?.sendNetwork != '109090' ? 
-                  performCasperWithdraw((amount).toString()) : withdrawEvm(item.id, item)
+                  performCasperWithdraw((item.sendAmount).toString()) : withdrawEvm(item.id, item)
                 } />)
                 : (
                     <MetaMaskConnector.WalletConnector
@@ -214,7 +214,9 @@ export const Withdrawals = () => {
                     TOKEN WITHDRAWALS
                 </FTypo>
                 <FTable>
-                    <Datatable tableBody={body || []} tableHeaders={tableHeads} rowsPerPage={10} />
+                    <DatatableWrapper body={body} headers={tableHeads} paginationOptionsProps={{"initialState": {"rowsPerPage": 10, "options": []}}} >
+
+                    </DatatableWrapper>
                 </FTable>
             </FGrid>
             <ConfirmationDialog
