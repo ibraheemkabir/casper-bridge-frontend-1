@@ -29,6 +29,7 @@
     "jest-environment-jsdom": "^29.6.2",
     "moment": "^2.29.1",
     "react": "^17.0.2",
+    "react-bs-datatable": "^3.14.0",
     "react-dom": "17.0.2",
     "react-hot-toast": "^2.2.0",
     "react-icons": "^4.3.1",
@@ -64,11 +65,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ],
-    "devDependencies": {
-      "@testing-library/jest-dom": "^5.17.0",
-      "jest": "^26.6.0",
-      "jest-environment-jsdom": "^26.6.2"
-    }
+    ]
   }
 }

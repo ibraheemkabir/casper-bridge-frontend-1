@@ -34,6 +34,8 @@ export const CasperSwap = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState();
+  const [isSwap, setIsSwap] = useState(false);
+
   const [targetNetwork, setTargetNetwork] = useState('30');
   const [targetToken, setTargetToken] = useState('Ferrum_Test_Token');
   const [processMsg, setProcessMsg] = useState('');

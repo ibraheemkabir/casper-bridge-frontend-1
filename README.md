@@ -10,6 +10,7 @@ cd ferrum-gateway
 - Node version: v15.5.0
 - Npm version: ^8.19.2
 
+
 This repository contains the frontend implementation for the shell application for completing EVM to NON EVM token swaps between casper and bsc networks mainly. 
 
 The application is geared towards showcasing the swap functionality interacting with the ferrum network bridging/swap contract.
@@ -63,9 +64,11 @@ Install required browser/chrome extensions (compatible with chrome , consider eq
 
 Clone casper bridge frontend repository
 
-Install project dependencies by running `npm install`
+Install project dependencies by running `npm install` or `yarn install`
 
-Start project by running `npm start`
+Start project by running `npm start` or `yarn start`
+
+`yarn` is preferred in this case to ensure correct depencency modes are installed.
 
 As a result of Cors errors from the casper RPC url, it is important to download a cors unblocking extension to ease connection e.g https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino?hl=en-GB or its equivalent on respective browsers
 
