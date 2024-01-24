@@ -191,7 +191,7 @@ export const Withdrawals = () => {
                 isConnected
                 ? (<FButton title={"Withdraw"} onClick={() => 
                   item?.sendNetwork != '109090' ? 
-                  performCasperWithdraw((amount).toString()) : withdrawEvm(item.id, item)
+                  performCasperWithdraw((item.sendAmount).toString()) : withdrawEvm(item.id, item)
                 } />)
                 : (
                     <MetaMaskConnector.WalletConnector
