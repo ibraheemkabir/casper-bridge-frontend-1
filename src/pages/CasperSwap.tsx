@@ -33,6 +33,7 @@ export const CasperSwap = () => {
   const { bridgePoolAddress }: any = useParams();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [isSwap, setIsSwap] = useState(false);
   const [amount, setAmount] = useState();
   const [isSwap, setIsSwap] = useState(false);
 
