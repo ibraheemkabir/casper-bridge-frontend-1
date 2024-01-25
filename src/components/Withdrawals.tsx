@@ -1,6 +1,6 @@
 import { FTypo, FGrid, FTable, FHeader, FButton } from "ferrum-design-system";
 import { useEffect, useState } from "react";
-import { DatatableWrapper } from "react-bs-datatable";
+import DatatableWrapper from "react-bs-datatable";
 import { useDispatch, useSelector } from "react-redux";
 import { crucibleApi } from "../client";
 import { fetchWithdrawals } from "../redux/casper/casperActions";
@@ -234,9 +234,7 @@ export const Withdrawals = () => {
                     TOKEN WITHDRAWALS
                 </FTypo>
                 <FTable>
-                    <DatatableWrapper body={body} headers={tableHeads} paginationOptionsProps={{"initialState": {"rowsPerPage": 10, "options": []}}} >
-
-                    </DatatableWrapper>
+                  <DatatableWrapper tableBody={body || []} tableHeaders={tableHeads} rowsPerPage={10} />
                 </FTable>
             </FGrid>
             <ConfirmationDialog
