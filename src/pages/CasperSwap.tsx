@@ -387,7 +387,7 @@ export const CasperSwap = () => {
         } catch (e) {
           console.log("ERROR : ", e);
             toast.error("An error occured please see console for details");
-            navigate.push(`/${config._id}`);
+            // navigate.push(`/${config._id}`);
         } finally {
         //setLoading(false)
         }
