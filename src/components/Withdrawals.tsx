@@ -36,7 +36,6 @@ const casperClient = new CasperClient(RPC_API);
 export const Withdrawals = () => {
     const { connect: { config, selectedAccount, isWalletConnected, withdrawalItems } } = useSelector((state: any) => state.casper);
     const { walletAddress, isConnected, networkClient, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
-    console.log(walletAddress, selectedAccount , currentWalletNetwork)
     const [loading, setLoading] = useState(false);
     const [processMsg, setProcessMsg] = useState('');
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -54,11 +53,12 @@ export const Withdrawals = () => {
                "data": {
                 "id": id,
                 "txType": "swap",
+                "receiveNetwork": 109090,
                 "sendNetwork": `${networkData?.sendCurrencyFormatted || networkData?.sendNetwork || 'BSC_TESTNET'}`,
                 "used": "",
-                "user": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
-                "sendAddress": "0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52",
-                "receiveAddress": "017fbbccf39a639a1a5f469e3fb210d9f355b532bd786f945409f0fc9a8c6313b1",
+                "user": walletAddress,
+                "sendAddress": walletAddress,
+                "receiveAddress": selectedAccount?.address,
                 "sendCurrency": networkData?.sendCurrency || `${networkData.sendNetwork}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
                 "sendAmount":  currentWalletNetwork === 1 ? (Number(item.sendAmount) * 1000000) : Web3.utils.toWei(item.sendAmount, 'ether'),
                 "receiveCurrency": "CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473"
@@ -73,6 +73,24 @@ export const Withdrawals = () => {
           )
           if(tx) {
             setShowConfirmation(true)
+            await Api.gatewayApi({
+              "command": "updateEvmAndNonEvmTransaction",
+               "data": {
+                "id": id,
+                "txType": "swap",
+                "sendNetwork": `${networkData?.sendCurrencyFormatted || networkData?.sendNetwork || 'BSC_TESTNET'}`,
+                "used": true,
+                "receiveNetwork": 109090,
+                "user": walletAddress,
+                "sendAddress": walletAddress,
+                "receiveAddress": selectedAccount?.address,
+                "sendCurrency": networkData?.sendCurrency || `${networkData.sendNetwork}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
+                "sendAmount":  currentWalletNetwork === 1 ? (Number(item.sendAmount) * 1000000) : Web3.utils.toWei(item.sendAmount, 'ether'),
+                "receiveCurrency": "CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473"
+              },
+              "params": []
+            });
+            await fetchEvmWithdrawalItems()
           }
         }
     }    
@@ -189,8 +207,10 @@ export const Withdrawals = () => {
             <div className="col-action">
             {
                 isConnected
-                ? (<FButton title={"Withdraw"} onClick={() => 
-                  item?.sendNetwork != '109090' ? 
+                ? (<FButton title={item?.used ? "Withdrawn" :"Withdraw"} 
+                  disabled={item?.used === "true"}
+                  onClick={() => 
+                  ((item.receiveCurrency.split(":")[0]).includes('CSPR') || (item.receiveCurrency.split(":")[0]).includes('CASPER')) ? 
                   performCasperWithdraw((item.sendAmount).toString()) : withdrawEvm(item.id, item)
                 } />)
                 : (
