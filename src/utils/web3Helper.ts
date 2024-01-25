@@ -20,7 +20,7 @@ export class Web3Helper {
             .sendTransaction({
               from: tx.from,
               to: tx.contract,
-              value: tx.value || "0x",
+              value: 0,
               data: tx.data,
               gas: tx.gas?.gasLimit,
               // gasPrice: tx.gas?.gasPrice,
