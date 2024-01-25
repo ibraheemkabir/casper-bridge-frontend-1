@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { CLValueBuilder } from "casper-js-sdk";
 
 export const convertHashStrToHashBuff = (hashStr: string) => {
@@ -9,6 +10,7 @@ export const convertHashStrToHashBuff = (hashStr: string) => {
 };
 
 export const setContractHash = (contractHash: string) => {
+    console.log(contractHash)
     return CLValueBuilder.key(
         CLValueBuilder.byteArray(convertHashStrToHashBuff(contractHash))
     );
