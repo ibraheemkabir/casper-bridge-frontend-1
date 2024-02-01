@@ -263,6 +263,7 @@ export const CasperSwap = () => {
       isWalletConnected &&
       selectedAccount
     ) {
+      setIsSwap(true)
       //@ts-ignore
       const casperWalletProvider = await window.CasperWalletProvider;    
       const provider = casperWalletProvider();
@@ -329,11 +330,81 @@ export const CasperSwap = () => {
     }
   };
 
+  const performAddLiquidty = async (amount: string) => {
+    setIsSwap(false)
+    //@ts-ignore
+    const networkData = networksToChainIdMap[currentWalletNetwork]
+    console.log(networkData)
+    if (
+      isWalletConnected &&
+      selectedAccount
+    ) {
+      //@ts-ignore
+      const casperWalletProvider = await window.CasperWalletProvider;    
+      const provider = casperWalletProvider();
+      setLoading(true)
+      try {
+        const publicKeyHex = selectedAccount?.address;
+        const senderPublicKey = CLPublicKey.fromHex(publicKeyHex);
+
+        const deployParams = new DeployUtil.DeployParams(
+          senderPublicKey,
+          'casper'
+        );
+
+        const args = RuntimeArgs.fromMap({
+          "amount": CLValueBuilder.u256(Number(amount + 1) * 100),
+          "token_address": CLValueBuilder.string('contract-package-wasm5fe4b52b2b1a3a0eebdc221ec9e290df1535ad12a7fac37050095201f449acc4'),
+          "bridge_pool_contract_package_hash": CLValueBuilder.string('contract-package-wasme0f1bcfbbc1554dc0cbd1316cc1658645b58898aa5add056985f9d6cb0f6f75b'),
+        });
+
+        const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+          decodeBase16('e0f1bcfbbc1554dc0cbd1316cc1658645b58898aa5add056985f9d6cb0f6f75b'),
+          'add_liquidity',
+          args
+        );
+
+        const payment = DeployUtil.standardPayment(10000000000);
+
+        const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
+
+        const deployJson: any = DeployUtil.deployToJson(deploy);
+      
+        provider.sign(JSON.stringify(deployJson), publicKeyHex).then(async (signedDeployJson: any) => {
+          const signedDeploy = DeployUtil.setSignature(
+            deploy,
+            signedDeployJson.signature,
+            CLPublicKey.fromHex(publicKeyHex)
+          );
+          // const signedDeploy = DeployUtil.deployFromJson(signedDeployJson);
+          if (signedDeploy) {
+            const res = await casperClient.putDeploy(signedDeploy);
+            // setProcessMsg(res)
+            // setLoading(false)
+            // setShowConfirmation(true)
+          }
+          
+        });
+          // navigate.push(`/${config._id}`);
+          //toast.success(`${amount} tokens are staked successfully`);
+       
+      } catch (e) {
+        toast.error("An error occured please see console for details");
+      } finally {
+        //setLoading(false)
+      }
+
+    } else {
+      navigate.push(`/${config._id}`);
+    }
+  };
+
   const performCasperApproval = async () => {
     if (
       isWalletConnected &&
       selectedAccount
     ) {
+      setIsSwap(false)
       //@ts-ignore
       const casperWalletProvider = await window.CasperWalletProvider;    
       const provider = casperWalletProvider();

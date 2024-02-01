@@ -31,49 +31,66 @@ const ConfirmationDialog = ({
     const { walletAddress, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
     
     const checkTransaction = async () => {
-        setProcessing(true)
+      console.log(processing)
+      if (!processing) {
+        console.log('called checkTransaction')
         const res = await casperService.getDeployInfo(transaction)
         if(res.execution_results.length) {
-           //@ts-ignore
-           if(res.execution_results[0].result.Failure) {
+          //@ts-ignore
+          if(res.execution_results[0].result.Failure) {
             //@ts-ignore
             setProcessing(false)
             setIsDone(true)
             setIsSuccessful(false)
-           }
-           //@ts-ignore
-           if(res.execution_results[0].result.Success) {
-            setProcessing(false)
-            setIsDone(true)
-            setIsSuccessful(true)
-            //@ts-ignore
-            const networkData = networksToChainIdMap[currentWalletNetwork]
-            if (isSwap) {
-              const Api = new crucibleApi()
-              await Api.signInToServer(walletAddress)
-              const logTransaction = await Api.gatewayApi({
-                command: 'logCsprTransaction', data: {
-                  receiveNetwork: networkData.sendNetwork,
-                  sendAmount: amount,
-                  sendAddress: `${selectedAccount?.address}`,
-                  receiveAddress: walletAddress,
-                  sendNetwork: '109090',
-                  sendTimestamp: Date.now(),
-                  sendCurrency: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
-                  receiveCurrency: `${networkData.sendCurrency}`,
-                  creator: `cspr:${selectedAccount?.address}`,
-                  id: transaction
-              }, params: [] });
-            }
-           
-           }
+            clearInterval(intervalId)
+          }
+          //@ts-ignore
+          if(res.execution_results[0].result.Success && !isDone) {
+              setProcessing(false)
+              setIsDone(true)
+              setIsSuccessful(true)
+              //@ts-ignore
+              if (isSwap && !isDone) {
+                console.log('called', isDone)
+                await setIsDone(true)
+                clearInterval(intervalId)
+                console.log(isDone)
+              }
+          }
         }
+      }
     }
+
+    // useEffect(() => {
+    //   console.log(isSuccessful, processing, isDone, transaction, 'isSuccessfulisSuccessful')
+    //   if (isSuccessful) {
+    //     //@ts-ignore
+    //     const networkData = networksToChainIdMap[currentWalletNetwork]
+    //     const Api = new crucibleApi()
+    //     Api.signInToServer(walletAddress)
+    //     Api.gatewayApi({
+    //       command: 'logCsprTransaction', data: {
+    //         receiveNetwork: networkData.sendNetwork,
+    //         sendAmount: amount,
+    //         sendAddress: `${selectedAccount?.address}`,
+    //         receiveAddress: walletAddress,
+    //         sendNetwork: '109090',
+    //         sendTimestamp: Date.now(),
+    //         sendCurrency: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
+    //         receiveCurrency: `${networkData.sendCurrency}`,
+    //         creator: `cspr:${selectedAccount?.address}`,
+    //         id: transaction
+    //     }, params: [] });
+    //   }
+    // }, [isSuccessful])
+
     useEffect(() => {
         if (transaction && !isDone) {
+          console.log('here', transaction, isDone)
+          setProcessing(true)
           let intervalId = setInterval(
             () =>  checkTransaction()
-          , 5000)
+          , 30000)
           setIntervalId(intervalId)
         }
 
@@ -82,13 +99,12 @@ const ConfirmationDialog = ({
         }
     }, [transaction, isDone])
 
-    useEffect(() => {
-      return () => {
-        setIsDone(false)
-        setIsSuccessful(false)
-        setProcessing(false)
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //     setIsSuccessful(false)
+    //     setProcessing(false)
+    //   }
+    // }, [])
 
     return (
       <FDialog
@@ -99,6 +115,26 @@ const ConfirmationDialog = ({
           setIsDone(false)
           setProcessing(false)
           setIsSuccessful(false)
+
+          if (isSuccessful && isSwap) {
+            //@ts-ignore
+            const networkData = networksToChainIdMap[currentWalletNetwork]
+            const Api = new crucibleApi()
+            Api.signInToServer(walletAddress)
+            Api.gatewayApi({
+              command: 'logCsprTransaction', data: {
+                receiveNetwork: networkData.sendNetwork,
+                sendAmount: amount,
+                sendAddress: `${selectedAccount?.address}`,
+                receiveAddress: walletAddress,
+                sendNetwork: '109090',
+                sendTimestamp: Date.now(),
+                sendCurrency: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
+                receiveCurrency: `${networkData.sendCurrency}`,
+                creator: `cspr:${selectedAccount?.address}`,
+                id: transaction
+            }, params: [] });
+          }
         }}
         show={show}
         className="connect-wallet-dialog text-center"

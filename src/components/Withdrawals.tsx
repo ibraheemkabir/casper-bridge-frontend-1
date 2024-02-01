@@ -78,18 +78,19 @@ export const Withdrawals = () => {
                "data": {
                 "id": id,
                 "txType": "swap",
+                "receiveNetwork": 109090,
                 "sendNetwork": `${networkData?.sendCurrencyFormatted || networkData?.sendNetwork || 'BSC_TESTNET'}`,
                 "used": true,
-                "receiveNetwork": 109090,
                 "user": walletAddress,
                 "sendAddress": walletAddress,
                 "receiveAddress": selectedAccount?.address,
                 "sendCurrency": networkData?.sendCurrency || `${networkData.sendNetwork}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
-                "sendAmount":  currentWalletNetwork === 1 ? (Number(item.sendAmount) * 1000000) : Web3.utils.toWei(item.sendAmount, 'ether'),
+                "sendAmount":  item.sendAmount,
                 "receiveCurrency": "CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473"
               },
               "params": []
             });
+            
             await fetchEvmWithdrawalItems()
           }
         }
@@ -128,7 +129,7 @@ export const Withdrawals = () => {
             );
 
             const args = RuntimeArgs.fromMap({
-                "amount": CLValueBuilder.u256(Number(amount) * 100),
+                "amount": CLValueBuilder.u256((Number(amount)) * 100),
                 "token_address": CLValueBuilder.string('contract-package-wasm5fe4b52b2b1a3a0eebdc221ec9e290df1535ad12a7fac37050095201f449acc4'),
               });
     
@@ -168,7 +169,7 @@ export const Withdrawals = () => {
             } catch (e) {
               console.log("ERROR : ", e);
                 toast.error("An error occured please see console for details");
-                navigate.push(`/${config._id}`);
+                // navigate.push(`/${config?._id}`);
             } finally {
             //setLoading(false)
             }
@@ -197,11 +198,11 @@ export const Withdrawals = () => {
           amount: <FTypo className={"col-amount"}>{item.sendAmount}</FTypo>,
           sourceNetwork: <FTypo className={"col-amount"}>{
             //@ts-ignore
-            Networks[item.sendNetwork] || item.sendNetwork
+            (item.used === "true") ? Networks[item.receiveNetwork] || item.receiveCurrency.split(":")[0] : Networks[item.sendNetwork] || item.sendNetwork
         }</FTypo>,
           targetNetwork: <FTypo className={"col-amount"}>{
             //@ts-ignore
-            Networks[item.receiveNetwork] || item.receiveCurrency.split(":")[0]
+            !(item.used === "true") ? Networks[item.receiveNetwork] || item.receiveCurrency.split(":")[0] : Networks[item.sendNetwork] || item.sendNetwork
         }</FTypo>,
           action: (
             <div className="col-action">
@@ -210,7 +211,7 @@ export const Withdrawals = () => {
                 ? (<FButton title={item?.used ? "Withdrawn" :"Withdraw"} 
                   disabled={item?.used === "true"}
                   onClick={() => 
-                  ((item.receiveCurrency.split(":")[0]).includes('CSPR') || (item.receiveCurrency.split(":")[0]).includes('CASPER')) ? 
+                  (((item.receiveCurrency.split(":")[0]).includes('CSPR') || (item.receiveCurrency.split(":")[0]).includes('CASPER'))) && !(item.used === "true") ? 
                   performCasperWithdraw((item.sendAmount).toString()) : withdrawEvm(item.id, item)
                 } />)
                 : (
