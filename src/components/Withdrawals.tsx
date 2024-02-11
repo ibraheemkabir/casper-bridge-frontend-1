@@ -5,8 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { crucibleApi } from "../client";
 import { fetchWithdrawals } from "../redux/casper/casperActions";
 import { Networks } from "../utils/stringUtils";
-import { CasperWithdrawal } from "../pages/CasperWithdrawal";
-import FerrumJson from "../utils/contract.json";
 
 import './layout.scss';
 import { Web3Helper } from "../utils/web3Helper";
