@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getStakingInfo } from "../utils/DateUtil";
 import { connectWallet, connectWallet as connectWalletDispatch } from '../redux/casper/casperActions';
 import { useHistory, useParams } from "react-router";
-import './layout.scss';
 import { CasperServiceByJsonRPC, CLPublicKey, CLValue, 
   CLValueBuilder, 
   decodeBase16, 
@@ -238,7 +237,7 @@ export const CasperAddLiquidity = () => {
       }
 
     } else {
-      navigate.push(`/${config._id}`);
+      // navigate.push(`/${config._id}`);
     }
   };
 
@@ -301,13 +300,13 @@ export const CasperAddLiquidity = () => {
         } catch (e) {
           console.log("ERROR : ", e);
             toast.error("An error occured please see console for details");
-            navigate.push(`/${config._id}`);
+            // navigate.push(`/${config._id}`);
         } finally {
         //setLoading(false)
         }
 
     } else {
-        navigate.push(`/${config._id}`);
+        // navigate.push(`/${config._id}`);
     }
   };
 

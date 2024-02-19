@@ -2,12 +2,14 @@ import { CasperClient, CasperServiceByJsonRPC } from "casper-js-sdk";
 import { FDialog, FList, FTruncateText, FTypo, FLink } from "ferrum-design-system";
 import { useEffect, useState } from "react";
 import Loader from "./../assets/images/loaderIcon.svg";
-import Success from "./../assets/images/SuccessIcon.svg";
+import Success from "./../assets/images/SuccessIcon2.png";
 import Failure from "./../assets/images/FailureIcon.svg";
 import LoaderGif from "./../assets/images/loading2.gif";
 import { crucibleApi } from "../client";
 import { useSelector } from "react-redux";
 import { networksToChainIdMap } from "../utils/network";
+import { useHistory } from "react-router";
+import Web3 from "web3";
 
 const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
 
@@ -22,6 +24,8 @@ const ConfirmationDialog = ({
     amount,
     network = "BSC_TESTNET",
     isSwap = false,
+    onSuccessful,
+    evmSuccessful
   }: any) => {
     const [processing, setProcessing] = useState(false)
     const [isSuccessful, setIsSuccessful] = useState(false)
@@ -29,7 +33,8 @@ const ConfirmationDialog = ({
     const [intervalId, setIntervalId] = useState(null as any)
     const { connect: { config, selectedAccount, isWalletConnected, signedAddresses } } = useSelector((state: any) => state.casper);
     const { walletAddress, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
-    
+    const navigate = useHistory();
+
     const checkTransaction = async () => {
       console.log(processing)
       if (!processing) {
@@ -49,6 +54,10 @@ const ConfirmationDialog = ({
               setProcessing(false)
               setIsDone(true)
               setIsSuccessful(true)
+
+              if (onSuccessful) {
+                onSuccessful()
+              }
               //@ts-ignore
               if (isSwap && !isDone) {
                 console.log('called', isDone)
@@ -106,6 +115,28 @@ const ConfirmationDialog = ({
     //   }
     // }, [])
 
+    const generateWithdraw = () => {
+      if (isSuccessful && isSwap) {
+        //@ts-ignore
+        const networkData = networksToChainIdMap[currentWalletNetwork]
+        const Api = new crucibleApi()
+        Api.signInToServer(walletAddress)
+        Api.gatewayApi({
+          command: 'logCsprTransaction', data: {
+            receiveNetwork: networkData.sendNetwork,
+            sendAmount: currentWalletNetwork === 1 ? (Number(amount) * 1000000) : Web3.utils.toWei(amount, 'ether'),
+            sendAddress: `${selectedAccount?.address}`,
+            receiveAddress: walletAddress,
+            sendNetwork: '109090',
+            sendTimestamp: Date.now(),
+            sendCurrency: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
+            receiveCurrency: `${networkData.sendCurrency}`,
+            creator: `cspr:${selectedAccount?.address}`,
+            id: transaction
+        }, params: [] });
+      }
+    }
+
     return (
       <FDialog
         variant={"dark"}
@@ -115,26 +146,7 @@ const ConfirmationDialog = ({
           setIsDone(false)
           setProcessing(false)
           setIsSuccessful(false)
-
-          if (isSuccessful && isSwap) {
-            //@ts-ignore
-            const networkData = networksToChainIdMap[currentWalletNetwork]
-            const Api = new crucibleApi()
-            Api.signInToServer(walletAddress)
-            Api.gatewayApi({
-              command: 'logCsprTransaction', data: {
-                receiveNetwork: networkData.sendNetwork,
-                sendAmount: amount,
-                sendAddress: `${selectedAccount?.address}`,
-                receiveAddress: walletAddress,
-                sendNetwork: '109090',
-                sendTimestamp: Date.now(),
-                sendCurrency: `CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473`,
-                receiveCurrency: `${networkData.sendCurrency}`,
-                creator: `cspr:${selectedAccount?.address}`,
-                id: transaction
-            }, params: [] });
-          }
+          generateWithdraw()
         }}
         show={show}
         className="connect-wallet-dialog text-center"
@@ -149,15 +161,33 @@ const ConfirmationDialog = ({
               : <img src={Failure} width={"120px"} />
             : transaction && processing ?
               <img src={LoaderGif} width={"120px"} />
+            : evmSuccessful ?
+              <img src={Success} width={"120px"} />
             : <img src={Loader} width={"120px"} />
           }
           <FTypo size={20} className={"f-mb--5 f-mt--9"}> 
             {
               isDone && transaction ?
                isSuccessful ?
-                  ('Transaction processed successfully')
+                  (
+                    <p>
+                      <p>Transaction processed successfully</p>
+                      {
+                        isSwap && <p style={{fontSize: 12, marginTop: "2px", color: '#D9B373'}} onClick={async () => { await generateWithdraw(); navigate.push('/withdraw') }}>Kindly Proceed to withdraw</p>
+                      }
+                    </p>
+                  )
                : ('Transaction failed on chain')
-              :  (message || 'Loading')
+              :  evmSuccessful ?
+                (
+                  <p>
+                    <p>Transaction processed successfully</p>
+                    {
+                      isSwap && <p style={{fontSize: 12, marginTop: "2px", color: '#D9B373'}} onClick={async () => { await generateWithdraw(); navigate.push('/withdraw') }}>Kindly Proceed to withdraw</p>
+                    }
+                  </p>
+                )
+              : (message || 'Loading')
             }
           </FTypo>
           <a href={`https://cspr.live/deploy/${transaction}`} target="_blank" style={{"color": "white"}}>
