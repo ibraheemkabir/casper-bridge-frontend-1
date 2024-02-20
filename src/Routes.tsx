@@ -10,35 +10,35 @@ const CasperLanding = React.lazy(() => import('./pages/Landing/CasperLanding'));
 const BaseRoutes = () => {
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div></div>}>
         <Header />
       </Suspense>
       <FMain>
         <Switch>
           <Route path="/withdraw" component={() => (
             <FGrid spacing={13}>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<div></div>}>
                 <Withdrawals /> 
               </Suspense>
             </FGrid>
           )}></Route>
           <Route path="/liquidity" component={() => (
             <FGrid spacing={13}>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<div></div>}>
                 <CasperAddLiquidity /> 
               </Suspense>
             </FGrid>
           )}></Route>
           <Route path="/swap" component={() =>
             <FGrid spacing={13}>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<div></div>}>
                 <CasperSwap /> 
               </Suspense>
             </FGrid>
           }></Route>
           <Route path="*" component={() =>
             <FGrid spacing={13}>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<div></div>}>
                 <CasperLanding /> 
               </Suspense>
             </FGrid>

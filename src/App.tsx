@@ -10,16 +10,16 @@ const BaseRoutes = React.lazy(() => import('./Routes'));
 function App() {
   return (
     <div className="App">
-      {/* <WalletApplicationWrapper.ApplicationWrapper>
+      <WalletApplicationWrapper.ApplicationWrapper>
         <Toaster position="top-right" />
         <FLayout themeBuilder={false} FsiderLayoutState={true}>
           <FContainer width={1600} className="f-pl-1 f-pr-1">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div></div>}>
             <BaseRoutes />
           </Suspense>
           </FContainer>
         </FLayout>
-        </WalletApplicationWrapper.ApplicationWrapper> */}
+        </WalletApplicationWrapper.ApplicationWrapper>
     </div>
   );
 }

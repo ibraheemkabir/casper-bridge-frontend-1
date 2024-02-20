@@ -71,7 +71,6 @@ export const  CasperLanding = () => {
         const casperWalletProvider = await window.CasperWalletProvider;    
         const provider = casperWalletProvider();
         provider.disconnectFromSite();
-        console.log('hello')
         //@ts-ignore
         await resetWallet()(dispatch)
     };

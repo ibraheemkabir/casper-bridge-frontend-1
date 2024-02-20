@@ -308,8 +308,6 @@ export const CasperSwap = () => {
           const balance = await casperService.getAccountBalance(latestBlock?.block?.header?.state_root_hash, balanceUref);
         }
 
-        console.log('hellooo')
-
         const info = await casperService.getDeployInfo(
           'aaa631f3491be84ebd92485f95e0d311288fc6f4e529756b4da63870eee8a416'
         )
