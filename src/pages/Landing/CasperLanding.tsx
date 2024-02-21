@@ -52,6 +52,12 @@ export const  CasperLanding = () => {
     const connectWallet = async () => {
         //@ts-ignore
         const casperWalletProvider = await window.CasperWalletProvider;    
+
+        if (!casperWalletProvider) {
+            toast.error(`Casper Wallet provider not found. Kindly ensure casper wallet browser extension is installed.`);
+            return
+        }
+
         const provider = casperWalletProvider();
         await provider?.requestConnection()
 

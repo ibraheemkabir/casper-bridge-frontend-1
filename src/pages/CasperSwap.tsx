@@ -26,6 +26,7 @@ import casper_icon from './../assets/images/image 24.png';
 import wc_icon from './../assets/images/Vector (1).png';
 import { useForm } from "react-hook-form";
 import { ApprovableButtonWrapper } from "../components/connector/web3Client/approvalButtonWrapper";
+import { walletConnectorActions } from "../components/connector/wallet-connector";
 
 const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
 
@@ -139,6 +140,7 @@ export const CasperSwap = () => {
   useEffect(() => {    
     const origin: {value: any, label: any, name: any}[] = origins
     const destination: {value: any, label: any, name: any}[] = destinations
+    const { ethereum } = window as any;
     //@ts-ignore
     let network = window.ethereum?.networkVersion
     //@ts-ignore
@@ -155,6 +157,13 @@ export const CasperSwap = () => {
       const item = destinations.find(e => e.name === networksToChainIdMap[network].chain)
       if (item) setValue("destination", item)
     }
+
+    const handleAccountsChanged = async (accounts: string[]) => {
+      await ethereum.enable();
+      dispatch(walletConnectorActions.resetWalletConnector());
+      dispatch(walletConnectorActions.connectWallet());
+    };
+    ethereum.on("accountsChanged", handleAccountsChanged);
     
   }, [currentWalletNetwork, network3])
 
