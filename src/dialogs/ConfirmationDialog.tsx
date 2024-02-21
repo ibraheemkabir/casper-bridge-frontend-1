@@ -1,5 +1,5 @@
-import { CasperClient, CasperServiceByJsonRPC } from "casper-js-sdk";
-import { FDialog, FList, FTruncateText, FTypo, FLink } from "ferrum-design-system";
+import { CasperServiceByJsonRPC } from "casper-js-sdk";
+import { FDialog, FList, FTruncateText, FTypo } from "ferrum-design-system";
 import { useEffect, useState } from "react";
 import Loader from "./../assets/images/loaderIcon.svg";
 import Success from "./../assets/images/SuccessIcon2.png";
@@ -12,9 +12,7 @@ import { useHistory } from "react-router";
 import Web3 from "web3";
 
 const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
-
 const casperService = new CasperServiceByJsonRPC(RPC_API);
-const casperClient = new CasperClient(RPC_API);
 
 const ConfirmationDialog = ({
     show,
@@ -36,9 +34,7 @@ const ConfirmationDialog = ({
     const navigate = useHistory();
 
     const checkTransaction = async () => {
-      console.log(processing)
       if (!processing) {
-        console.log('called checkTransaction')
         const res = await casperService.getDeployInfo(transaction)
         if(res.execution_results.length) {
           //@ts-ignore
@@ -108,12 +104,6 @@ const ConfirmationDialog = ({
         }
     }, [transaction, isDone])
 
-    // useEffect(() => {
-    //   return () => {
-    //     setIsSuccessful(false)
-    //     setProcessing(false)
-    //   }
-    // }, [])
 
     const generateWithdraw = () => {
       if (isSuccessful && isSwap) {
@@ -173,7 +163,7 @@ const ConfirmationDialog = ({
                     <p>
                       <p>Transaction processed successfully</p>
                       {
-                        isSwap && <p style={{fontSize: 12, marginTop: "2px", color: '#D9B373'}} onClick={async () => { await generateWithdraw(); navigate.push('/withdraw') }}>Kindly Proceed to withdraw</p>
+                        isSwap && <p style={{fontSize: 12, marginTop: "2px", color: '#D9B373', cursor: 'pointer'}} onClick={async () => { await generateWithdraw(); navigate.push('/withdraw') }}>Kindly Proceed to withdraw</p>
                       }
                     </p>
                   )
@@ -183,7 +173,7 @@ const ConfirmationDialog = ({
                   <p>
                     <p>Transaction processed successfully</p>
                     {
-                      isSwap && <p style={{fontSize: 12, marginTop: "2px", color: '#D9B373'}} onClick={async () => { await generateWithdraw(); navigate.push('/withdraw') }}>Kindly Proceed to withdraw</p>
+                      isSwap && <p style={{fontSize: 12, marginTop: "2px", color: '#D9B373', cursor: 'pointer'}} onClick={async () => { await generateWithdraw(); navigate.push('/withdraw') }}>Kindly Proceed to withdraw</p>
                     }
                   </p>
                 )
@@ -196,7 +186,6 @@ const ConfirmationDialog = ({
             </FTypo>
           </a>
         </FList>
-        {/* <FButton onClick={onHide} title={"Close"}></FButton> */}
       </FDialog>
     );
   };

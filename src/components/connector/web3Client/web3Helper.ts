@@ -137,7 +137,6 @@ export class Web3Helper {
             //@ts-ignore
             const gasOverride = networks[network as any]
             const gasRes = await this.getGasFees(chainId, txType)
-            console.log(chainId, gasRes, 'called22')
 
             if (chainId && gasRes) {
                 const gasFee = {

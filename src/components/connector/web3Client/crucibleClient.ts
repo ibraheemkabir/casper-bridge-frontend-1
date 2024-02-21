@@ -44,15 +44,16 @@ export class CrucibleClient {
       data: { currency, amount: amount || "1", userAddress, contractAddress },
       params: [],
     });
-    // console.log('About to submit request', {requests});
+    console.log('About to submit request', {requests});
 
     if (requests.data) {
       const request = await this.networkOverrides(Array.isArray(requests.data) ? requests.data : [requests.data], network)
+      request[0].value = '0x0';
       const requestId = await this.web3Client.sendTransactionAsync(
         dispatch,
         currency,
         request,
-        { currency, amount, userAddress, contractAddress }
+        { }
       );
       return requestId.split("|")[0]; // Convert the requestId to transction Id. TODO: Do this a better way
       //showmodal
@@ -115,7 +116,6 @@ export class CrucibleClient {
             //@ts-ignore
             const gasOverride = networks[network as any]
             const gasRes = await this.getGasFees(chainId, txType)
-            console.log(chainId, gasRes, 'called22')
 
             if (chainId && gasRes) {
                 const gasFee = {

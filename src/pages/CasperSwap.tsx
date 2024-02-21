@@ -243,6 +243,7 @@ export const CasperSwap = () => {
 
   async function swapEvm():Promise<any>{
     try {
+      setIsSwap(true)
       setEvmLoading(true)
       //@ts-ignore
       const networkData = networksToChainIdMap[currentWalletNetwork]
@@ -510,19 +511,16 @@ export const CasperSwap = () => {
                 setShowConfirmation(true)
             }
         });
-          // navigate.push(`/${config._id}`);
         //toast.success(`${amount} tokens are staked successfully`);
         
         } catch (e) {
           console.log("ERROR : ", e);
             toast.error("An error occured please see console for details");
-            // navigate.push(`/${config._id}`);
         } finally {
         //setLoading(false)
         }
 
     } else {
-        // navigate.push(`/${config._id}`);
     }
   };
 
@@ -532,15 +530,12 @@ export const CasperSwap = () => {
     //@ts-ignore
     let network = window.ethereum?.networkVersion
     //@ts-ignore
-    console.log(network, networksToChainIdMap[network])
-    //@ts-ignore
     if (network && networksToChainIdMap[network]) {
       if (origin.length > 1 ) {
         //@ts-ignore
         const item = destinations.find(e => e.name === networksToChainIdMap[network].chain)
         if (item) setValue("source", item)
       }
-      console.log('heree')
       //@ts-ignore
       const item = destinations.find(e => e.name === networksToChainIdMap[network].chain)
       if (item) setValue("destination", item)
@@ -561,14 +556,12 @@ export const CasperSwap = () => {
 
         //@ts-ignore
         let network3 = window.ethereum?.networkVersion
-        console.log(network3, 'network3network3')
+        dispatch(walletConnectorActions.resetWalletConnector());
+        dispatch(walletConnectorActions.connectWallet());
       }
     } catch (err: any) {
-         //@ts-ignore
-        let ethereum = window.ethereum;
         revertNetwork()
         toast.error(err?.message);
-   
     }
   };
 
@@ -659,7 +652,7 @@ export const CasperSwap = () => {
                               title={ownProps.isApprovalMode ? "APPROVE" : "SWAP"}
                               className="w-100 f-mt-2 sm-button"
                               data-testid={'swap-casper-button'}
-                              onClick={swapEvm}
+                              onClick={ownProps.isApprovalMode ? ownProps.onApproveClick : swapEvm}
                             />
                           }}
                         />

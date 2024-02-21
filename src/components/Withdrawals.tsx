@@ -36,6 +36,7 @@ export const Withdrawals = () => {
     const { walletAddress, isConnected, networkClient, currentWalletNetwork } = useSelector((state: any) => state.casper.walletConnector);
     const [loading, setLoading] = useState(false);
     const [processMsg, setProcessMsg] = useState('');
+    const [txId, setTxId] = useState('');
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [evmSuccessful, setEvmSuccessful] = useState<boolean>(false);
 
@@ -92,8 +93,12 @@ export const Withdrawals = () => {
         //@ts-ignore
         if (error?.response?.data?.error) {
           //@ts-ignore
-          toast(error?.response?.data?.error)
-        }else {
+          toast(error?.data?.message)
+          //@ts-ignore
+        } else if (error?.data?.message) {
+          //@ts-ignore
+          toast(error?.data?.message)
+        } else {
           toast("Error occured processing transaction, kindly try again")
         }
         setEvmLoading(false)
@@ -114,7 +119,7 @@ export const Withdrawals = () => {
         }
     }
 
-    const performCasperWithdraw = async (amount: string) => {
+    const performCasperWithdraw = async (amount: string, id: string) => {
         if (
           isWalletConnected &&
           selectedAccount
@@ -160,7 +165,7 @@ export const Withdrawals = () => {
                     const res = await casperClient.putDeploy(signedDeploy);
                     console.log(res, 'resres');
                     if (res) {
-                    
+                      setTxId(id)
                     }
                     setProcessMsg(res)
                     setLoading(false)
@@ -259,10 +264,10 @@ export const Withdrawals = () => {
                         //@ts-ignore
                         <span><img width={25} src={withdrawIcon}/> {((item.sendNetwork === "109090") && networkData['chain'] !=  Networks[item.receiveNetwork]) ? 'Switch Network' : item?.used ? "Withdrawn" :"Withdraw"} </span>
                       } 
-                      disabled={false}
+                      disabled={item?.used}
                       //@ts-ignore
                       onClick={() => ((item.sendNetwork === "109090") && networkData['chain'] !=  Networks[item.receiveNetwork]) ? performSwitchNetwork({"networkId": networksToChainIdMap[chainInfo]['chainId']})
-                        : !(item.sendNetwork === "109090") ? performCasperWithdraw((item.sendAmount).toString()) : withdrawEvm(item.id, item)
+                        : !(item.sendNetwork === "109090") ? performCasperWithdraw((item.sendAmount).toString(), item?.id) : withdrawEvm(item.id, item)
                       }
                     />
                   )
@@ -296,18 +301,45 @@ export const Withdrawals = () => {
             </FGrid>
             <ConfirmationDialog
               evmSuccessful={evmSuccessful}
-              onHide={() => {
+              onHide={async () => {
                 setShowConfirmation(false)
                 setEvmSuccessful(false)
                 setProcessMsg("")
+                const Api = new crucibleApi()
+                if (txId) {
+                  await Api.gatewayApi({
+                    "command": "updateEvmAndNonEvmTransaction",
+                    "data": {
+                      "id": txId,
+                      "used": true,
+                    },
+                    "params": []
+                  })
+                }
+                await fetchEvmWithdrawalItems()
               }}
               transaction={processMsg}
               message={'Transaction sent to network and is processing.'}
               show={showConfirmation}
               isSwap={false}
             />
-            <TxProcessingDialog onHide={() =>setLoading(false)} message={ processMsg || "Transaction Processing...."} show={loading}/>
-            <TxProcessingDialog onHide={() =>setEvmLoading(false)} message={ processMsg || "Transaction Processing...."} show={evmLoading}/>
+            <TxProcessingDialog 
+              onHide={
+                async () => {
+                  setLoading(false)
+                }
+              }
+              message={ processMsg || "Transaction Processing...."}
+              show={loading}
+            />
+            <TxProcessingDialog  onHide={
+                async () => {
+                  setLoading(false)
+                }
+              }
+              message={ processMsg || "Transaction Processing...."}
+              show={evmLoading}
+          />
 
         </div>
     )
