@@ -38,8 +38,6 @@ export const CasperSwap = () => {
   const { bridgePoolAddress }: any = useParams();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-<<<<<<< HEAD
-=======
   const [evmLoading, setEvmLoading] = useState<boolean>(false);
   const [evmSuccessful, setEvmSuccessful] = useState<boolean>(false);
 
@@ -71,9 +69,7 @@ export const CasperSwap = () => {
     }
   ]);
 
->>>>>>> c8f7910e (completed redesign)
   const [amount, setAmount] = useState();
-  const [isSwap, setIsSwap] = useState(false);
 
   const [targetNetwork, setTargetNetwork] = useState('30');
   const [targetToken, setTargetToken] = useState('Ferrum_Test_Token');
@@ -693,105 +689,6 @@ export const CasperSwap = () => {
         />
         <TxProcessingDialog onHide={() =>setLoading(false)} message={ processMsg || "Transaction Processing...."} show={loading}/>
       </FCard>
-<<<<<<< HEAD
-      <div style={{"zIndex": isConnected ? 1 : 0, "width": "100%"}}>
-        <FCard className={`card-staking f-mb-2`}>
-          <FGrid alignX={"center"} className="f-mb-1">
-            <FTypo size={18} align={"center"} className={"f-mb-14 f-mt--7"}>
-              SWAP FROM CASPER TO {networkData?.chain || 'BSC'}
-            </FTypo>
-            <FGridItem alignX={"center"} size={[8, 8, 12]} className="f-m-auto f-mb-1">
-              <FItem align={"center"}>    
-                <FInputText
-                  className={"f-mt-2"}
-                  label={"AMOUNT TO SWAP "}
-                  data-testid={"caspertoevm_input"}
-                  placeholder={"0"}
-                  value={amount}
-                  onChange={(e: any) => {
-                    e.preventDefault();
-                    const re = /^-?\d*\.?\d*$/;
-                    if (e.target.value === "" || re.test(e.target.value)) {
-                      setAmount(e.target.value);
-                    }
-                  }}
-                  postfix={
-                    <FTypo className={"f-pr-1"} color="#dab46e">
-                      TOKEN
-                    </FTypo>
-                  }
-                />
-                <FInputText
-                  className={"f-mt-2"}
-                  label={"Target Network"}
-                  disabled
-                  value={networkData?.chain}
-                  onChange={(e: any) => {}}
-                />
-                <FInputText
-                  className={"f-mt-2"}
-                  label={"Target Token"}
-                  disabled
-                  value={targetToken}
-                  onChange={(e: any) => {}}
-                />
-                {
-                  (connection.isWalletConnected && isConnected) && (
-                    <>
-                      <FButton 
-                        title={"SWAP"}
-                        className="w-100 f-mt-2"
-                        onClick={() => performSwap()}
-                      />
-                      <div className="w-100 f-mt-2 flex jc jc-end" style={{"cursor": "pointer"}} onClick={() => performCasperApproval()}>Approve</div>
-                    </>
-                  )
-                }
-                {
-                  !connection.isWalletConnected ? 
-                    <FButton title={"Connect Casper Signer"} className="w-100 f-mt-2" onClick={() => connectWallet()} />
-                  : !isConnected ? (
-                      <div className="w-100 f-mt-2">
-                        <MetaMaskConnector.WalletConnector
-                          WalletConnectView={FButton}
-                          WalletConnectModal={ConnectWalletDialog}
-                          isAuthenticationNeeded={false}
-                          WalletConnectViewProps={{ className: "w-100" }}
-                        />
-                      </div>
-                    )
-                  : <></>
-                }
-                {
-                  //     <FButton
-                  //       title={stakingInfo.isStakingOpen ? "Stake" : stakingInfo.isEarlyWithdraw ? "Early Withdraw" : stakingInfo.isWithdrawOpen ? "Maturity Withdraw" : "Refresh"}
-                  //       className="w-100 f-mt-2"
-                  //       onClick={() => {
-                  //         // console.log("staking");
-                  //         // dispatch(algorandActions.shouldStake());
-                  //         if (getStakingInfo(connection?.config?.stakingEnds, connection?.config?.stakingStarts, connection?.config?.withdrawStarts, connection?.config?.withdrawEnds).isStakingOpen) {
-                  //           // navigate.push(`/${stakingId}/submit-stake`);
-                  //         } else if (
-                  //           getStakingInfo(connection?.config?.stakingEnds, connection?.config?.stakingStarts, connection?.config?.withdrawStarts, connection?.config?.withdrawEnds).isEarlyWithdraw ||
-                  //           getStakingInfo(connection?.config?.stakingEnds, connection?.config?.stakingStarts, connection?.config?.withdrawStarts, connection?.config?.withdrawEnds).isWithdrawOpen
-                  //         ) {
-                  //           // console.log(stakingId, 'withdrawwww')
-                  //           // navigate.push(`/${stakingId}/submit-withdraw`);
-                  //         } else {
-                  //           window.location.reload();
-                  //         }
-                  //       }}
-                  //     />
-                  //   )
-                  // 
-                }
-              </FItem>
-            </FGridItem>
-          </FGrid>
-        </FCard>
-      </div>
-=======
->>>>>>> c8f7910e (completed redesign)
       <ConfirmationDialog
           evmSuccessful={evmSuccessful}
           amount={amount}

@@ -29,6 +29,7 @@ import { walletConnectorActions } from "./connector/wallet-connector";
 
 const RPC_API = "https://casper-proxy-app-03c23ef9f855.herokuapp.com?url=https://rpc.mainnet.casperlabs.io/rpc";
 const casperClient = new CasperClient(RPC_API);
+const CASPER_ADDRESS = "CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473"
 
 export const Withdrawals = () => {
     const [evmLoading, setEvmLoading] = useState<boolean>(false);
@@ -50,19 +51,19 @@ export const Withdrawals = () => {
         const Api = new crucibleApi()
         await Api.signInToServer(walletAddress)
             const res = await Api.gatewayApi({
-              "command": "updateEvmAndNonEvmTransaction",
+              "command": "withdrawEvmItem",
                "data": {
                 "id": id,
                 "txType": "swap",
                 "sendNetwork": 109090,
-                "receiveNetwork": `${item.receiveNetwork || networkData?.sendCurrencyFormatted || networkData?.sendNetwork || 'BSC_TESTNET'}`,
+                "receiveNetwork": `${item.receiveNetwork}`,
                 "used": "",
                 "user": walletAddress,
                 "sendAddress": walletAddress,
                 "receiveAddress": selectedAccount?.address,
-                "sendCurrency": item?.sendCurrency || networkData?.sendCurrency || `${networkData.sendNetwork}:0xfe00ee6f00dd7ed533157f6250656b4e007e7179`,
+                "sendCurrency": item?.sendCurrency,
                 "sendAmount":  item.sendAmount,
-                "receiveCurrency": "CSPR:222974816f70ca96fc4002a696bb552e2959d3463158cd82a7bfc8a94c03473"
+                "receiveCurrency": CASPER_ADDRESS
               },
               "params": []
             });
@@ -292,11 +293,7 @@ export const Withdrawals = () => {
                     Token Withdrawals
                 </FTypo>
                 <FTable>
-<<<<<<< HEAD
                   <DatatableWrapper tableBody={body || []} tableHeaders={tableHeads} rowsPerPage={10} />
-=======
-                    <Datatable tableBody={body || []} tableHeaders={tableHeads} rowsPerPage={7} />
->>>>>>> c8f7910e (completed redesign)
                 </FTable>
             </FGrid>
             <ConfirmationDialog
