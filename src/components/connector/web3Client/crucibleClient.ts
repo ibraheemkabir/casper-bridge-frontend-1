@@ -47,12 +47,11 @@ export class CrucibleClient {
     console.log('About to submit request', {requests});
 
     if (requests.data) {
-      const request = await this.networkOverrides(Array.isArray(requests.data) ? requests.data : [requests.data], network)
-      request[0].value = '0x0';
+      requests.data[0].value = '0x0';
       const requestId = await this.web3Client.sendTransactionAsync(
         dispatch,
         currency,
-        request,
+        requests.data,
         { }
       );
       return requestId.split("|")[0]; // Convert the requestId to transction Id. TODO: Do this a better way
